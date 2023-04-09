@@ -17,8 +17,9 @@ A NVIDIA GTX1070 non-TI with TensorRT runs at 30fps using the small model.
 Optional but recommended:<br>
 5) NVIDIA TensorRT >= 8.4 -> https://developer.nvidia.com/tensorrt<br>
 <br>
-Speedup for bigger models with TensorRT is significant. Thats why all models bigger than medium will only be release as TensorRT engines.
-![Image](docs/TensorRT_Speedup.png)
+Speedup for bigger models with TensorRT is significant.<br>
+Thats why all models bigger than medium will only be released as TensorRT engines.<br><br>
+<img src="/docs/TensorRT_Speedup.png">
 
 <h3>Usage</h3>
 I) Disable windows mouse acceleration<br>
