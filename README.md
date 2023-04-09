@@ -16,6 +16,9 @@ A NVIDIA GTX1070 non-TI with TensorRT runs at 30fps using the small model.
 4) pip install -r requirements.txt<br><br>
 Optional but recommended:<br>
 5) NVIDIA TensorRT >= 8.4 -> https://developer.nvidia.com/tensorrt<br>
+<br>
+Speedup for bigger models with TensorRT is significant. Thats why all models bigger than medium will only be release as TensorRT engines.
+
 
 <h3>Usage</h3>
 I) Disable windows mouse acceleration<br>
@@ -41,13 +44,14 @@ Switch to CSGO and run/look around. At the end the average fps of the detector d
 
 | arg      | default   | Description                                                                                               |
 | ----      | ---       | ---                                                                                                      |
-| -input_size      | 640                                  | dimension of the input image for the detector                          |
-| -engine or -weights | models/yolov8s_csgo_mirage-640-v5-al-gen-bg | selected engine (TensorRT) or weights (YOLOv8)                         |          
-| -side            | 'dm'                                 | which side your are on, 'ct', 't' or 'dm' (deathmatch)                 | 
-| -sensitivity     | 1                                    | sensitivity mode, increase when having a high framerate or chaotic aim |
-| -visualize       | False                                | show live detector output in a new window                              |
-| -view_only       | False                                | run in view only mode (disarmed)                                       |
-| -benchmark       | False                                | launch benchmark mode                                                  |
+| --input_size      | 640                                  | dimension of the input image for the detector                          |
+| --engine or --weights | models/yolov8s_csgo_mirage-640-v5-al-gen-bg | selected engine (TensorRT) or weights (YOLOv8)               |          
+| --side            | 'dm'                                 | which side your are on, 'ct', 't' or 'dm' (deathmatch)                 | 
+| --minconf         | 0.8                                  | minimum detection confidence                                           |  
+| --sensitivity     | 1                                    | sensitivity mode, increase when having a high framerate or chaotic aim |
+| --visualize       | False                                | show live detector output in a new window                              |
+| --view_only       | False                                | run in view only mode (disarmed)                                       |
+| --benchmark       | False                                | launch benchmark mode                                                  |
 
 
 
