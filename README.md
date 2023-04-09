@@ -41,7 +41,7 @@ Run run_tensorrt.py or run_yolo.py with argument <b>-benchmark</b> to start in b
 This is going to run the detector in view-only- and detect-all mode for 300 iterations.<br>
 Switch to CSGO and run/look around. At the end the average fps of the detector during that time will be displayed.
 <br><br>
-<img src="/docs/benchmark_mode.png">
+<img src="/docs/benchmark_mode1.png">
 
 <h3>Arguments<h3>
 
