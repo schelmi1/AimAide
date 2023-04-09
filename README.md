@@ -2,6 +2,8 @@
 
 External realtime object detection-based aim aiding powered by <b>YOLOv8</b>, <b>CUDA</b> and <b>TensorRT</b>
 
+<img src="/docs/header_cts.jpg">
+
 <h3>Latest changes/additions</h3>
 So far only Mirage is supported (although it might work on other maps depending on used agents).<br>
 
@@ -38,7 +40,8 @@ medium (lowest framerate, best decetion performance)<br>
 Run run_tensorrt.py or run_yolo.py with argument <b>-benchmark</b> to start in benchmark mode.<br>
 This is going to run the detector in view-only- and detect-all mode for 300 iterations.<br>
 Switch to CSGO and run/look around. At the end the average fps of the detector during that time will be displayed.
-
+<br><br>
+<img src="/docs/benchmark_mode.png">
 
 <h3>Arguments<h3>
 
