@@ -1,2 +1,2 @@
-# AimAide
-Object Detection-based Aim Aiding for CSGO and CS2
+# AimAide for CSGO and CS2
+Object Detection-based Aim Aiding
