@@ -18,7 +18,7 @@ Optional but recommended:<br>
 5) NVIDIA TensorRT >= 8.4 -> https://developer.nvidia.com/tensorrt<br>
 <br>
 Speedup for bigger models with TensorRT is significant. Thats why all models bigger than medium will only be release as TensorRT engines.
-
+![Image](docs/TensorRT_Speedup.png)
 
 <h3>Usage</h3>
 I) Disable windows mouse acceleration<br>
