@@ -8,6 +8,7 @@ External realtime object detection-based aim aiding powered by <b>YOLOv8</b>, <b
 
 <h3>Latest changes/additions</h3>
 So far only Mirage is supported (although it might work on other maps depending on used agents).<br>
+Mirage medium model -> https://uploadnow.io/de/share?utm_source=gfv6Nc4 / https://www.file.io/K0dA/download/v5yQMonMRCHz<br> (unzip and put into /models)
 
 <h3>Hardware Requirements</h3>
 To get this to work the detector has to run at 30fps at least.<br>
