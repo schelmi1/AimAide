@@ -1,4 +1,5 @@
 # AimAide for CSGO and soon CS2
+
 External realtime object detection-based aim aiding powered <b>YOLOv8</b>, <b>CUDA</b> and <b>TensorRT</b>
 
 <h3>Latest changes/additions</h3>
@@ -38,8 +39,24 @@ Switch to CSGO and run/look around. At the end the average fps of the detector d
 <h3>Arguments<h3>
 
 
+| arg      | default   | Description                                                                                               |
+| ---      | ---       | ---                                                                                                       |
+| -input_size      | 640                                  | dimension of the input image of the detector                           |
+| -engine/-weights | yolov8s_csgo_mirage-640-v5-al-gen-bg | selected engine (TensorRT) or weights (YOLOv8)                         |          
+| -side            | 'dm'                                 | which side your are on, 'ct', 't' or 'dm' (deathmatch)                 | 
+| -sensitivity     | 1                                    | sensitivity mode, increase when having a high framerate or chaotic aim |
+| -visualize       | False                                | show live detector output in a new window                              |
+| -view_only       | False                                | run in view only mode (disarmed)                                       |
+| -benchmark       | False                                | launch benchmark mode                                                  |
+
+
+
 <h3>FAQ</h3>
 
-
-
+Q: Why is the aiming is so chaotic and unnatural?<br>
+A: Probably due to high detector framerate. Increase the sensitivity mode by running with arg -sensitivity (default is 1)<br>
+<br>
+Q: Why is the aiming is so slow and laggy?<br>
+A: Probably due to low detector framerate. Run benchmark mode and check if you get an average fps of at least 30 while being ingame.<br>
+<br><br>
 Feel free to fork this repo and/or use the models for your own projects. :)
