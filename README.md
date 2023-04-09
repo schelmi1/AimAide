@@ -19,7 +19,7 @@ A NVIDIA GTX1070 non-TI with TensorRT runs at 30fps using the small model.
 3) Corresponding PyTorch CUDA Package -> https://pytorch.org/get-started/locally/<br>
 4) pip install -r requirements.txt<br><br>
 Optional but recommended:<br>
-5) NVIDIA TensorRT >= 8.4 -> https://developer.nvidia.com/tensorrt<br>
+5) NVIDIA TensorRT >= 8.4 -> https://developer.nvidia.com/tensorrt -> https://docs.nvidia.com/deeplearning/tensorrt/install-guide/index.html<br> 
 <br>
 Speedup for bigger models with TensorRT is significant.<br>
 Thats why all models bigger than medium will only be released as TensorRT engines.<br><br>
@@ -32,10 +32,12 @@ III) Cap max_fps in CSGO at your native display refresh rate<br>
 <br>
 1) Run either run_tensorrt.py or run_yolo.py<br>
 2) Selective detection can be activated by running with argument <b>-side 'your side'</b> (t, ct or dm for detecting all)<br>
-If you want to change the detection mode while the script is running, simply write 't', 'ct' or 'dm' into the console and hit enter<br>
-4) Depending on your hardware choose from 3 different models (nano, small, medium)<br>
+If you want to change the detection mode while the script is running, simply write 't', 'ct' or 'dm' into the console and hit enter<br><br>
+<img src="/docs/side_switch.png"><br>
+3) Depending on your hardware choose from 3 different models (nano, small, medium)<br>
 nano (highest framerate, lowest detection performance),<br>
 medium (lowest framerate, best decetion performance)<br>
+4) Run in benchmark mode first to see what framerate you get (over 60fps increase sensitivity mode)<br>
 5) Point at enemy and shoot
 
 <h3>Benchmark mode</h3>
