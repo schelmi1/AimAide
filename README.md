@@ -1,2 +1,2 @@
 # AimAide for CSGO and CS2
-Object Detection-based Aim Aiding
+Realtime object detection-based Aim Aiding using YOLOv8, CUDA and TensorRT
