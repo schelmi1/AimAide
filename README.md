@@ -1,6 +1,6 @@
 # AimAide for CSGO and soon CS2
 
-External realtime object detection-based aim aiding powered <b>YOLOv8</b>, <b>CUDA</b> and <b>TensorRT</b>
+External realtime object detection-based aim aiding powered by <b>YOLOv8</b>, <b>CUDA</b> and <b>TensorRT</b>
 
 <h3>Latest changes/additions</h3>
 So far only Mirage is supported (although it might work on other maps depending on used agents).<br>
@@ -40,9 +40,9 @@ Switch to CSGO and run/look around. At the end the average fps of the detector d
 
 
 | arg      | default   | Description                                                                                               |
-| ---      | ---       | ---                                                                                                       |
-| -input_size      | 640                                  | dimension of the input image of the detector                           |
-| -engine/-weights | yolov8s_csgo_mirage-640-v5-al-gen-bg | selected engine (TensorRT) or weights (YOLOv8)                         |          
+| ----      | ---       | ---                                                                                                      |
+| -input_size      | 640                                  | dimension of the input image for the detector                          |
+| -engine or -weights | models/yolov8s_csgo_mirage-640-v5-al-gen-bg | selected engine (TensorRT) or weights (YOLOv8)                         |          
 | -side            | 'dm'                                 | which side your are on, 'ct', 't' or 'dm' (deathmatch)                 | 
 | -sensitivity     | 1                                    | sensitivity mode, increase when having a high framerate or chaotic aim |
 | -visualize       | False                                | show live detector output in a new window                              |
