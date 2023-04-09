@@ -2,7 +2,9 @@
 
 External realtime object detection-based aim aiding powered by <b>YOLOv8</b>, <b>CUDA</b> and <b>TensorRT</b>
 
-<img src="/docs/header_cts.jpg">
+<img src="/docs/header_cts.jpg"><br>
+[Video Demo here](https://github.com/schelmi1/AimAide/blob/main/docs/demo.mp4?raw=true)
+<br>
 
 <h3>Latest changes/additions</h3>
 So far only Mirage is supported (although it might work on other maps depending on used agents).<br>
