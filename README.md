@@ -10,6 +10,10 @@ External realtime object detection-based aim aiding powered by <b>YOLOv8</b>, <b
 So far only Mirage is supported (although it might work on other maps depending on used agents).<br>
 Mirage medium model -> https://uploadnow.io/de/share?utm_source=gfv6Nc4 / https://www.file.io/K0dA/download/v5yQMonMRCHz<br> (unzip and put into /models)
 
+<h3>Features</h3>
+YOLOv8 Models trainied on mirage with various CT and T agents (body and head).<br>
+Simple linear mouse mover locking onto closest target to current center.<br>
+
 <h3>Hardware Requirements</h3>
 To get this to work the detector has to run at 30fps at least.<br>
 A NVIDIA GTX1070 non-TI with TensorRT runs at 30fps using the small model.
