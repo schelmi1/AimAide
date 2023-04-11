@@ -7,6 +7,11 @@ External realtime object detection-based aim aiding powered by <b>YOLOv8</b>, <b
 <br>
 
 <h3>Latest changes/additions</h3>
+<b>11/04/23</b> - added two optional grabbers based on the d3dshot repo:</br>
+*d3d_gpu -> direct gpu grabbing with up to 30% performance increase (TensorRT only!)</br>
+*d3d_np -> accelerated cpu grabbing with up to 15% performance increase</br>
+access these via the new argument --grabber d3d_gpu / d3d_np</br></br>
+
 So far only Mirage is supported (although it might work on other maps depending on used agents).<br>
 Mirage medium model -> https://uploadnow.io/de/share?utm_source=gfv6Nc4 / https://www.file.io/K0dA/download/v5yQMonMRCHz<br> (unzip and put into /models)
 
@@ -58,6 +63,7 @@ Switch to CSGO and run/look around. At the end the average fps of the detector d
 | arg      | default   | Description                                                                                               |
 | ----      | ---       | ---                                                                                                      |
 | --input_size      | 640                                  | dimension of the input image for the detector                          |
+| --grabber      | 'win32'                                  | select screen grabber (win32, d3d_gpu, d3d_np)                          |
 | --engine or --weights | models/yolov8s_csgo_mirage-640-v5-al-gen-bg | selected engine (TensorRT) or weights (YOLOv8)               |          
 | --side            | 'dm'                                 | which side your are on, 'ct', 't' or 'dm' (deathmatch)                 | 
 | --minconf         | 0.8                                  | minimum detection confidence                                           |  
