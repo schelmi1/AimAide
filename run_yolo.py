@@ -6,20 +6,21 @@ from threading import Thread
 
 import cv2
 import torch
-import win32con
+from ultralytics import YOLO
 import pyautogui
 import numpy as np
 from rich import print
-from ultralytics import YOLO
 
-from src.base import AimAide
 from src.utils import accurate_timing
+from src.base import AimAide
 
 
-
-class AimAideTrt(AimAide):
-    def __init__(self, screensz, sectionsz, weights):
-        super().__init__(screensz, sectionsz)
+class AimAideYolo(AimAide):
+    def __init__(self, screensz, sectionsz, grabber, weights):
+        if grabber == 'd3d_gpu':
+            print('d3d_gpu grabber is only available for AimAide with TensorRT, switching to d3d_np!')
+            grabber = 'd3d_np'
+        super().__init__(screensz, sectionsz, grabber)
 
         if torch.cuda.is_available():
             print('CUDA device:', torch.cuda.get_device_name(0))
@@ -31,6 +32,7 @@ class AimAideTrt(AimAide):
         self.model = YOLO(weights)
         print(f'Weights: {weights}')
 
+        self._grabber = grabber
 
     def benchmark(self, iters=300):
         t1 = time.perf_counter()
@@ -58,18 +60,12 @@ class AimAideTrt(AimAide):
 
         while True:
             runtime_start = time.perf_counter()
-            try: 
-                self.cDC.SelectObject(self.dataBitMap)
-                self.cDC.BitBlt((0, 0), (self.section_size, self.section_size), self.dcObj, 
-                                (self.center_x-self.section_size//2, self.center_y-self.section_size//2), 
-                                 win32con.SRCCOPY)
 
-                img = np.frombuffer(self.dataBitMap.GetBitmapBits(True), dtype='uint8')
-                img.shape = (self.section_size, self.section_size, 4)
-                img = img[..., :3]
-            except Exception as e:
-                print(e)
-                sys.exit(0)
+            if self._grabber == 'win32':
+                img = self._grab()
+
+            if self._grabber == 'd3d_np':
+                img = self._grab_d3d_np()
 
             results = self.model.predict(img, device=0, verbose=False, conf=minconf, max_det=10)
 
@@ -131,6 +127,7 @@ class AimAideTrt(AimAide):
 
             if self.detected and self.conf > minconf and not view_only:
                 if np.hypot(dx, dy) < 160:
+                    #cv2.imwrite(f'C:/datasets/{count:06d}.png', img)
                     count += 1
                     if abs(dx) > 25:
                         for _ in range(8):
@@ -141,7 +138,7 @@ class AimAideTrt(AimAide):
                             pyautogui.move(dx, dy, 0, _pause=False)
             
             if visualize:
-                plot = self.visualize(img, bboxes, confs, labels)
+                plot = self.visualize(img, bboxes, confs, labels, minconf)
                 cv2.imshow('cap', plot)
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
@@ -166,6 +163,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='AimAide with Ultralytics YOLO', description='Run AimAide with Ultralytics YOLO')
     parser.add_argument('--input_size', type=int, default=640,  
                         help='dimension of the input image for the detector')
+    parser.add_argument('--grabber', type=str, default='win32', help='selected grabber (win32, d3d_gpu, d3d_np)')
     parser.add_argument('--weights', default='models\yolov8s_csgo_mirage-640-v5-al-gen-bg.pt', 
                         help='selected weights (YOLO) ')
     parser.add_argument('--side', type=str, default='dm', help='which side your are on, ct, t or dm (deathmatch))')
@@ -178,7 +176,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     w, h = ctypes.windll.user32.GetSystemMetrics(0), ctypes.windll.user32.GetSystemMetrics(1)
-    Aim = AimAideTrt((w, h), args.input_size, args.weights)
+    Aim = AimAideYolo((w, h), args.input_size, args.grabber, args.weights)
 
     if args.benchmark:
         Aim.benchmark()
@@ -186,3 +184,6 @@ if __name__ == '__main__':
         Aim.run(False, args.side, args.minconf, args.sensitivity, args.visualize, args.view_only)
 
     Aim.listener_switch.join()
+
+    if not args.grabber == 'win32':
+        Aim.d.stop()
