@@ -10,7 +10,8 @@ External realtime object detection-based aim aiding powered by <b>YOLOv8</b>, <b
 <b>11/04/23</b> - added two optional grabbers based on the d3dshot repo:</br>
 *d3d_gpu -> direct gpu grabbing with up to 30% performance increase (TensorRT only!)</br>
 *d3d_np -> accelerated cpu grabbing with up to 15% performance increase</br>
-access these via the new argument --grabber d3d_gpu / d3d_np</br></br>
+access these via the new argument --grabber d3d_gpu / d3d_np</br>
+<b>11/04/23</b> - added improved v7 small model</br></br>
 
 So far only Mirage is supported (although it might work on other maps depending on used agents).<br>
 Mirage medium model -> https://uploadnow.io/de/share?utm_source=gfv6Nc4 / https://www.file.io/K0dA/download/v5yQMonMRCHz<br> (unzip and put into /models)
