@@ -78,7 +78,7 @@ class AimAideYolo(AimAide):
                 labels.append(int(d.cls.squeeze().cpu()))
         
             #...result in uniform data format
-            bboxes = np.array(bboxes, dtype=np.uint16)
+            bboxes = np.array(bboxes, dtype=np.int16)
             confs = np.array(confs, dtype=np.float32)
             labels = np.array(labels, np.uint8)
 
