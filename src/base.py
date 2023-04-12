@@ -10,8 +10,15 @@ except ImportError as e:
     print(e, '...running win32 grabber')
     d3d_err_flag = True
 import torch
+import pyautogui
 import win32gui, win32ui, win32con
 from typing import Union
+from .utils import accurate_timing
+
+
+MOUSE_X_MOVE_DAMPING = 1
+MOUSE_Y_MOVE_DAMPING = 1.3
+
 
 class AimAide():
     def __init__(self, screensz: int, sectionsz: int, grabber: str) -> None:        
@@ -41,7 +48,7 @@ class AimAide():
             self.d = d3dshot.create(capture_output="numpy")
             self.d.display = self.d.displays[0]
 
-        else:
+        if grabber == 'win32' or d3d_err_flag:
             self._grabber = 'win32'
             print(f'Starting grabber: {self._grabber}')
             self.dcObj = win32ui.CreateDCFromHandle(win32gui.GetWindowDC(win32gui.GetDesktopWindow()))
@@ -116,11 +123,24 @@ class AimAide():
             
             return img
 
+    def _smooth_linear_aim(self, dx: int, dy: int, xyxy: list, sensitivity: int) -> None:
+        x1, y1, x2, y2, = xyxy
+        n_steps = abs(dx//6) if abs(dx) > 100 else abs(dx//8)
+        if n_steps <= 4:
+            n_steps = 4
+        
+        for _ in range(n_steps):
+            smooth = 2 * n_steps * sensitivity
+            if (x1//4 > 0) or (x2//4 < 0) or (y1//8 > 0) or (y2//8 < 0):
+                pyautogui.move(int(dx//smooth/MOUSE_X_MOVE_DAMPING), int(dy//smooth/MOUSE_Y_MOVE_DAMPING), 0, _pause=False)
+            _ = accurate_timing(sensitivity)
+ 
     def visualize(self, frame: np.ndarray, 
                         bboxes: Union[np.ndarray, list], 
                         confs: Union[np.ndarray, list], 
                         labels: Union[np.ndarray, list], 
                         minconf: float) -> np.ndarray:
+
         frame =  np.ascontiguousarray(frame, dtype=np.uint8)
         for bbox, conf, label in zip(bboxes, confs, labels):
             cx, cy, w, h = bbox
