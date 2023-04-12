@@ -8,15 +8,13 @@ from threading import Thread
 import cv2
 import torch
 import tensorrt
-import pyautogui
 import numpy as np
 from rich import print
 from torchvision.ops import box_convert
 
-from src.utils import accurate_timing
 from src.utils_trt import TRTModule, blob, letterbox, det_postprocess
 from src.base import AimAide
-
+from src.utils import accurate_timing
 
 class AimAideTrt(AimAide):
     def __init__(self, screensz, sectionsz, grabber, engine):
@@ -98,7 +96,7 @@ class AimAideTrt(AimAide):
             if isinstance(labels, int):
                 labels = [labels]
 
-            bboxes = np.array(bboxes, dtype=np.uint16)
+            bboxes = np.array(bboxes, dtype=np.int16)
             confs = np.array(confs, dtype=np.float32)
             labels = np.array(labels, dtype=np.uint8)
 
@@ -118,8 +116,15 @@ class AimAideTrt(AimAide):
                 labels = labels[valid_idcs]
                 
             if labels.size > 1:
-                dist = np.hypot(bboxes[:, 0], bboxes[:, 1]) 
+                dist = bboxes[:, 0] - self.section_size // 2
+                right_sided = np.where(dist>0)[0]
+                if len(right_sided) > 0:
+                    dist = dist[right_sided]
+                    bboxes = bboxes[right_sided]
+                    confs = confs[right_sided]
+                    labels = labels[right_sided]             
                 closest = np.argsort(dist)
+   
                 if (0 or 2 in labels) and (prefer_body):
                     closest_body_idx = np.where((labels[closest] == 0).any() or (labels[closest] == 2).any())[0][0]
                     target_body_idx = closest[closest_body_idx]
@@ -137,26 +142,17 @@ class AimAideTrt(AimAide):
 
             if labels.size > 0:
                 cx, cy, w, h = np.squeeze(target)
-                x1, x2 = cx - w//2, cx + w//2
-                y1, y2 = cy - h//2, cx + h//2
-                dx = int(-self.section_size//2 + cx)
-                dy = int(-self.section_size//2 + cy)
+                x1, x2 = (cx - w//2 - self.section_size // 2, cx + w//2 - self.section_size // 2)
+                y1, y2 = (cy - h//2 - self.section_size // 2, cx + h//2  - self.section_size // 2)
+                dx = int(cx-self.section_size//2)
+                dy = int(cy-self.section_size//2)
                 self.detected = True
             else:
-                self.detected = False
+                self.detected = False 
 
-            if self.detected and self.conf > minconf and not view_only:
-                if np.hypot(dx, dy) < 160:
-                    #cv2.imwrite(f'C:/datasets/{count:06d}.png', img)
-                    count += 1
-                    if abs(dx) > 25:
-                        for _ in range(8):
-                            pyautogui.move(int(dx // 8), int(dy // 8), 0, _pause=False)
-                            _ = accurate_timing(sensitivity)
-                    else:
-                        if (self.center_x < x1) or (self.center_x > x2) or (self.center_y) < y1 or (self.center_y > y2):
-                            pyautogui.move(dx, dy, 0, _pause=False)
-            
+            if self.detected and self.conf > minconf and np.hypot(dx, dy) < self.section_size//4 and not view_only:
+                self._smooth_linear_aim(dx, dy, [x1, y1, x2, y2], sensitivity)
+
             if visualize:
                 if self._grabber == 'd3d_gpu':
                     img = tensor.squeeze().permute(1, 2, 0).cpu().numpy() * 255
@@ -167,7 +163,7 @@ class AimAideTrt(AimAide):
 
             runtime_end = time.perf_counter()        
             if count_fps == 30:
-                print(f'[{self._side_color}]FPS:{(int(1/(runtime_end-runtime_start)))} | conf:{self.conf:.2f} dx:{abs(dx):03d} dy:{abs(dy):03d}', end='\r', flush=True)
+                print(f'[{self._side_color}]FPS:{(int(1/(runtime_end-runtime_start)))} | conf:{self.conf:.2f} dx:{abs(dx):03d} dy:{abs(dy):03d}' , end='\r', flush=True)
                 count_fps = 0
             else:
                 count_fps += 1

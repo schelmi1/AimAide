@@ -98,8 +98,15 @@ class AimAideYolo(AimAide):
                 labels = labels[valid_idcs]
                 
             if labels.size > 1:
-                dist = np.hypot(bboxes[:, 0], bboxes[:, 1]) 
+                dist = bboxes[:, 0] - self.section_size // 2
+                right_sided = np.where(dist>0)[0]
+                if len(right_sided) > 0:
+                    dist = dist[right_sided]
+                    bboxes = bboxes[right_sided]
+                    confs = confs[right_sided]
+                    labels = labels[right_sided]             
                 closest = np.argsort(dist)
+   
                 if (0 or 2 in labels) and (prefer_body):
                     closest_body_idx = np.where((labels[closest] == 0).any() or (labels[closest] == 2).any())[0][0]
                     target_body_idx = closest[closest_body_idx]
@@ -117,25 +124,16 @@ class AimAideYolo(AimAide):
 
             if labels.size > 0:
                 cx, cy, w, h = np.squeeze(target)
-                x1, x2 = cx - w//2, cx + w//2
-                y1, y2 = cy - h//2, cx + h//2
-                dx = int(-self.section_size//2 + cx)
-                dy = int(-self.section_size//2 + cy)
+                x1, x2 = (cx - w//2 - self.section_size // 2, cx + w//2 - self.section_size // 2)
+                y1, y2 = (cy - h//2 - self.section_size // 2, cx + h//2  - self.section_size // 2)
+                dx = int(cx-self.section_size//2)
+                dy = int(cy-self.section_size//2)
                 self.detected = True
             else:
-                self.detected = False
+                self.detected = False 
 
-            if self.detected and self.conf > minconf and not view_only:
-                if np.hypot(dx, dy) < 160:
-                    #cv2.imwrite(f'C:/datasets/{count:06d}.png', img)
-                    count += 1
-                    if abs(dx) > 25:
-                        for _ in range(8):
-                            pyautogui.move(int(dx // 8), int(dy // 8), 0, _pause=False)
-                            _ = accurate_timing(sensitivity)
-                    else:
-                        if (self.center_x < x1) or (self.center_x > x2) or (self.center_y) < y1 or (self.center_y > y2):
-                            pyautogui.move(dx, dy, 0, _pause=False)
+            if self.detected and self.conf > minconf and np.hypot(dx, dy) < self.section_size//4 and not view_only:
+                self._smooth_linear_aim(dx, dy, [x1, y1, x2, y2], sensitivity)
             
             if visualize:
                 plot = self.visualize(img, bboxes, confs, labels, minconf)
