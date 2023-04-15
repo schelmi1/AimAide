@@ -1,3 +1,4 @@
+import os
 import sys
 import ctypes
 import argparse
@@ -7,12 +8,13 @@ import torch
 import tensorrt
 from rich import print
 
+from src.enginebuilder import build_engine
 from src.utils_trt import TRTModule
 from src.base import AimAide
 
 
 class AimAideTrt(AimAide):
-    def __init__(self, screensz, sectionsz, grabber, model, side):
+    def __init__(self, screensz, sectionsz, grabber, model, side, no_engine_check):
         super().__init__(screensz, sectionsz, grabber, side)
     
         if torch.cuda.is_available():
@@ -22,13 +24,31 @@ class AimAideTrt(AimAide):
             sys.exit(0)
 
         print(f'TensorRT: {tensorrt.__version__}')
-        
-        if version.parse(tensorrt.__version__) < version.parse(str(8.4)):
-            print('WARNING:\nEngines were built with TensorRT 8.4,\nits recommended to use at least TensorRT 8.4!')
+
+        if not no_engine_check:
+            print('[yellow]Checking engines...')
+            weights = [n for n in os.listdir('models/') if n.endswith('pt')]
+            engines = [n for n in os.listdir('models/') if n.endswith('engine')]
+            rel_path = 'models/'
+            for file in weights:
+                engine_filename = file.replace('pt', 'engine')
+                if engine_filename not in engines:
+                    inputsz = int(engine_filename.split('-')[1])
+                    print(f'[red]{engine_filename} missing.[/red] [magenta]Building engine from YOLO weights. This may take a while...')
+                    pkl_filename = engine_filename.replace('engine', 'pkl')
+                    pt_filename =  engine_filename.replace('engine', 'pt')
+                    input_shape = (1, 3, inputsz, inputsz)
+                    build_engine(os.path.join(rel_path, pt_filename), input_shape, os.path.join(rel_path, pkl_filename))
+                    print(f'[yellow]Removing {pkl_filename}')
+                    os.remove(os.path.join(rel_path, pkl_filename))
 
         if model.endswith('pt'):
             print('[yellow]Specified YOLO.pt when a TensorRT engine is needed...Loading TensorRT engine!')
             model = model.replace('pt', 'engine')
+
+        inputsz = int(model.split('-')[1])
+        if isinstance(inputsz, int) and inputsz != self.section_size:
+            print(f'[red]Engine input size and grabber size are not the same.\nEngine: {inputsz}, Grabber: {self.section_size}\nChange the Grabber size by using the -input_size argument.')
 
         self.model = TRTModule(model, device=0)
         print(f'[green]Engine loaded:[/green] {model}')
@@ -48,10 +68,16 @@ if __name__ == '__main__':
     parser.add_argument('--visualize', action='store_true', help='show live detector output in a new window')
     parser.add_argument('--view_only', action='store_true', help='run in view only mode (disarmed)')
     parser.add_argument('--benchmark', action='store_true', help='launch benchmark mode')
+    parser.add_argument('--no_engine_check', action='store_true', help='avoid checking for missing engines')
     args = parser.parse_args()
 
     w, h = ctypes.windll.user32.GetSystemMetrics(0), ctypes.windll.user32.GetSystemMetrics(1)
-    Aim = AimAideTrt((w, h), args.input_size, args.grabber, args.model, args.side)
+    try:
+        Aim = AimAideTrt((w, h), args.input_size, args.grabber, args.model, args.side, args.no_engine_check)
+    except AttributeError as e:
+        print(e)
+        print('[red]The selected engine is incompatible with your TensorRT version.\nDelete the engine from the models folder and run again to build a new engine from YOLO weights.')
+        sys.exit()
 
     if args.benchmark:
         Aim._benchmark('trt')

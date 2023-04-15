@@ -21,7 +21,11 @@ import win32gui, win32ui, win32con
 from torchvision.ops import box_convert
 
 from .utils import accurate_timing
-from .utils_trt import TRTModule, blob, letterbox, det_postprocess
+
+try:
+    from .utils_trt import blob, letterbox, det_postprocess
+except ImportError as e:
+    print(e, 'only YOLO inference available!')
 
 MOUSE_X_MOVE_DAMPING = 1
 MOUSE_Y_MOVE_DAMPING = 1.3
