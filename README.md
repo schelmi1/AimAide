@@ -7,6 +7,8 @@ External realtime object detection-based aim aiding powered by <b>YOLOv8</b>, <b
 <br>
 
 <h3>Latest changes/additions</h3>
+
+<b>16/04/23</b> - engine builder added to circumvent TensorRT incompatibilities (by https://github.com/triple-Mu/YOLOv8-TensorRT)<br>
 <b>15/04/23</b> - introduced 320x320 input models which drastically increase fps with TensorRT<br>
 <br>
 11/04/23 - added two optional grabbers based on the d3dshot repo:</br>
@@ -19,7 +21,6 @@ So far only Mirage is supported (although it might work on other maps depending 
 Mirage medium model -> https://uploadnow.io/de/share?utm_source=gfv6Nc4 / https://www.file.io/K0dA/download/v5yQMonMRCHz<br> (unzip and put into /models)
 
 <h3>Road Map</h3>
-Engine builder for TensorRT engines to circumvent compatibility issues<br>
 Models for CS2 and more maps<br>
 
 
