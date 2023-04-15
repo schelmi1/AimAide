@@ -31,7 +31,7 @@ A NVIDIA GTX1070 non-TI with TensorRT runs at 30fps using the small model and at
 2) Python 3.10.6 environment<br>
 3) Corresponding PyTorch CUDA Package -> https://pytorch.org/get-started/locally/<br>
 4) pip install -r requirements.txt<br><br>
-Optional but recommended:<br>
+<b>Optional but recommended:</b><br>
 5) NVIDIA TensorRT >= 8.4 -> https://developer.nvidia.com/tensorrt -> https://docs.nvidia.com/deeplearning/tensorrt/install-guide/index.html<br> 
 <br>
 Speedup for bigger models with TensorRT is significant.<br>
