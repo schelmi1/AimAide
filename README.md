@@ -8,7 +8,7 @@ External realtime object detection-based aim aiding powered by <b>YOLOv8</b>, <b
 
 <h3>Latest changes/additions</h3>
 
-<b>16/04/23</b> - engine builder added to circumvent TensorRT incompatibilities (by https://github.com/triple-Mu/YOLOv8-TensorRT)<br>
+<b>16/04/23</b> - engine builder added to circumvent TensorRT incompatibilities <br>(by https://github.com/triple-Mu/YOLOv8-TensorRT)<br>
 <b>15/04/23</b> - introduced 320x320 input models which drastically increase fps with TensorRT<br>
 <br>
 11/04/23 - added two optional grabbers based on the d3dshot repo:</br>
@@ -81,6 +81,7 @@ Switch to CSGO and run/look around. At the end the average fps of the detector d
 | --visualize       | False                                | show live detector output in a new window                              |
 | --view_only       | False                                | run in view only mode (disarmed)                                       |
 | --benchmark       | False                                | launch benchmark mode                                                  |
+| --no_engine_check | False                                | skips engine checking and building (only run_tensorrt.py)              |
 
 
 
