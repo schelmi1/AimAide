@@ -69,7 +69,7 @@ Switch to CSGO and run/look around. At the end the average fps of the detector d
 | --grabber      | 'win32'                                  | select screen grabber (win32, d3d_gpu, d3d_np)                          |
 | --model           | models/yolov8s_csgo_mirage-320-v41-al-gen-bg | selected engine (TensorRT) or weights (YOLOv8)               |          
 | --side            | 'dm'                                 | which side your are on, 'ct', 't' or 'dm' (deathmatch)                 | 
-| --minconf         | 0.8                                  | minimum detection confidence                                           |  
+| --minconf         | 0.7                                  | minimum detection confidence                                           |  
 | --sensitivity     | 1                                    | sensitivity mode, increase when having a high framerate or chaotic aim |
 | --visualize       | False                                | show live detector output in a new window                              |
 | --view_only       | False                                | run in view only mode (disarmed)                                       |
