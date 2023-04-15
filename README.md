@@ -29,7 +29,7 @@ Simple linear mouse mover locking onto closest target to current center.<br>
 
 <h3>Hardware Requirements</h3>
 To get this to work the detector has to run at 30fps at least.<br>
-A NVIDIA GTX1070 non-TI with TensorRT runs at 30fps using the small model and at 60fps with TensorRT (320x320 model).
+A NVIDIA GTX1070 with runs at 30fps on a 640x640 model or 60fps on a320x320 model with TensorRT
 
 <h3>Installation</h3>
 1) NVIDIA CUDA Toolkit >= 11.7<br>
