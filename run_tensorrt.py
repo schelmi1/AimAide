@@ -16,9 +16,9 @@ class AimAideTrt(AimAide):
         super().__init__(screensz, sectionsz, grabber, side)
     
         if torch.cuda.is_available():
-            print('CUDA device:', torch.cuda.get_device_name(0))
+            print('[green]CUDA device found:', torch.cuda.get_device_name(0))
         else:
-            print('No CUDA device found.')
+            print('[red]No CUDA device found.')
             sys.exit(0)
 
         print(f'TensorRT: {tensorrt.__version__}')
@@ -27,7 +27,7 @@ class AimAideTrt(AimAide):
             print('WARNING:\nEngines were built with TensorRT 8.4,\nits recommended to use at least TensorRT 8.4!')
 
         if model.endswith('pt'):
-            print('Specified YOLO.pt when a TensorRT engine is needed...Loading TensorRT engine!')
+            print('[yellow]Specified YOLO.pt when a TensorRT engine is needed...Loading TensorRT engine!')
             model = model.replace('pt', 'engine')
 
         self.model = TRTModule(model, device=0)
@@ -42,7 +42,7 @@ if __name__ == '__main__':
     parser.add_argument('--model', default='models\yolov8s_csgo_mirage-320-v41-al-gen-bg.engine', 
                         help='selected engine (TensorRT) ')
     parser.add_argument('--side', type=str, default='dm', help='which side your are on, ct, t or dm (deathmatch))')
-    parser.add_argument('--minconf', type=float, default=0.8, help='minimum detection confidence')
+    parser.add_argument('--minconf', type=float, default=0.7, help='minimum detection confidence')
     parser.add_argument('--sensitivity' , type=int, default=1, 
                         help='sensitivity mode, increase when having a high framerate or chaotic aim')
     parser.add_argument('--visualize', action='store_true', help='show live detector output in a new window')
