@@ -18,6 +18,11 @@ access these via the new argument --grabber d3d_gpu / d3d_np</br>
 So far only Mirage is supported (although it might work on other maps depending on used agents).<br>
 Mirage medium model -> https://uploadnow.io/de/share?utm_source=gfv6Nc4 / https://www.file.io/K0dA/download/v5yQMonMRCHz<br> (unzip and put into /models)
 
+<h3>Road Map</h3>
+Engine builder for TensorRT engines to circumvent compatibility issues<br>
+Models for CS2<br>
+
+
 <h3>Features</h3>
 YOLOv8 Models trained on mirage with various CT and T agents (body and head).<br>
 Simple linear mouse mover locking onto closest target to current center.<br>
