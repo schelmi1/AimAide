@@ -17,7 +17,7 @@ So far only Mirage is supported (although it might work on other maps depending 
 Mirage medium model -> https://uploadnow.io/de/share?utm_source=gfv6Nc4 / https://www.file.io/K0dA/download/v5yQMonMRCHz<br> (unzip and put into /models)
 
 <h3>Features</h3>
-YOLOv8 Models trainied on mirage with various CT and T agents (body and head).<br>
+YOLOv8 Models trained on mirage with various CT and T agents (body and head).<br>
 Simple linear mouse mover locking onto closest target to current center.<br>
 
 <h3>Hardware Requirements</h3>
