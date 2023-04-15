@@ -20,12 +20,12 @@ Mirage medium model -> https://uploadnow.io/de/share?utm_source=gfv6Nc4 / https:
 
 <h3>Road Map</h3>
 Engine builder for TensorRT engines to circumvent compatibility issues<br>
-Models for CS2<br>
+Models for CS2 and more maps<br>
 
 
 <h3>Features</h3>
 YOLOv8 Models trained on mirage with various CT and T agents (body and head).<br>
-Simple linear mouse mover locking onto closest target to current center.<br>
+Simple linear mouse smooth mover locking onto closest target to current center.<br>
 
 <h3>Hardware Requirements</h3>
 To get this to work the detector has to run at 30fps at least.<br>
