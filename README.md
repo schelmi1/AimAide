@@ -58,7 +58,7 @@ If you want to change the detection mode while the script is running, simply wri
 nano (highest framerate, lowest detection performance),<br>
 medium (lowest framerate, best decetion performance)<br>
 4) Run in benchmark mode first to see what framerate you get (over 60fps increase sensitivity mode)<br>
-5) Point at enemy and shoot
+5) Adjust mouse sensitivity in CS and/or sensitivity mode of AimAide
 
 <h3>Benchmark mode</h3>
 Run run_tensorrt.py or run_yolo.py with argument <b>-benchmark</b> to start in benchmark mode.<br>
