@@ -42,7 +42,10 @@ NVIDIA RTX4090 should max out at ~120fps on a 640x640 model. (also TensorRT)<br>
 5) NVIDIA TensorRT >= 8.4 -> https://developer.nvidia.com/tensorrt -> https://docs.nvidia.com/deeplearning/tensorrt/install-guide/index.html<br> 
 <br>
 Speedup for bigger models with TensorRT is significant.<br>
-Thats why all models bigger than medium will only be released as TensorRT engines.<br><br>
+<s>Thats why all models bigger than medium will only be released as TensorRT engines</s>.<br>
+Models will be released as YOLO weights and locally built as TensorRT engines on first start up.<br>
+This is due to TensorRT version incompatibilities.<br>
+
 <img src="/docs/TensorRT_Speedup.png">
 
 <h3>Usage</h3>
