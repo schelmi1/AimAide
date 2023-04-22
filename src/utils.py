@@ -2,7 +2,7 @@ import time
 import ctypes
 from ctypes.wintypes import LARGE_INTEGER
 
-def accurate_timing(duration_ms):
+def accurate_timing(duration_ms: int) -> float:
     kernel32 = ctypes.windll.kernel32
 
     INFINITE = 0xFFFFFFFF

@@ -27,9 +27,9 @@ class AimAideTrt(AimAide):
 
         if not no_engine_check:
             print('[yellow]Checking engines...')
-            weights = [n for n in os.listdir('models/') if n.endswith('pt')]
-            engines = [n for n in os.listdir('models/') if n.endswith('engine')]
             rel_path = 'models/'
+            weights = [n for n in os.listdir(rel_path) if n.endswith('pt')]
+            engines = [n for n in os.listdir(rel_path) if n.endswith('engine')]
             for file in weights:
                 engine_filename = file.replace('pt', 'engine')
                 if engine_filename not in engines:

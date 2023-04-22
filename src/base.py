@@ -27,6 +27,7 @@ try:
 except ImportError as e:
     print(e, 'only YOLO inference available!')
 
+
 MOUSE_X_MOVE_DAMPING = 1
 MOUSE_Y_MOVE_DAMPING = 1.3
 
@@ -102,7 +103,7 @@ class AimAide():
             print(e)
             sys.exit(0)
     
-    def _grab_d3d_gpu(self) -> torch.tensor:
+    def _grab_d3d_gpu(self) -> torch.Tensor:
         try:
             tensor = self.d.screenshot(region=(self.screen_width//2 - self.section_size//2, 
                                                self.screen_height//2 - self.section_size//2, 
@@ -126,7 +127,7 @@ class AimAide():
             
             return img
 
-    def _inference_yolo(self):
+    def _inference_yolo(self)-> tuple([np.ndarray, np.ndarray, np.ndarray, np.ndarray]):
         if self._grabber == 'win32':
             img = self._grab()
 
@@ -150,8 +151,7 @@ class AimAide():
 
         return (img, bboxes, confs, labels)
 
-
-    def _inference_trt(self) -> tuple([np.ndarray, np.ndarray, np.ndarray]):
+    def _inference_trt(self) -> tuple([Union[np.ndarray, torch.Tensor], np.ndarray, np.ndarray, np.ndarray]):
         if self._grabber == 'd3d_gpu':
             tensor = self._grab_d3d_gpu()
             ratio = 1.
@@ -194,12 +194,12 @@ class AimAide():
 
         return (img, bboxes, confs, labels)
 
-
     def _perform_target_selection(self, 
-                                    bboxes: np.ndarray, 
-                                    confs: np.ndarray, 
-                                    labels: np.ndarray, 
-                                    prefer_body: bool) -> tuple[int, int, int, int, int, int, int, int]:
+                                  bboxes: np.ndarray, 
+                                  confs: np.ndarray, 
+                                  labels: np.ndarray, 
+                                  prefer_body: bool) -> tuple[int, int, int, int, int, int, int, int]:
+
         conf = float(0)
         if self.side == 'ct':
             valid_idcs = np.where(labels>1)[0]
@@ -247,7 +247,6 @@ class AimAide():
         else:
             return (False, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
-
     def _smooth_linear_aim(self, dx: int, dy: int, xyxywh: list, sensitivity: int) -> None:
             x1, y1, x2, y2, w, h = xyxywh
             n_steps = abs(dx//4) if abs(dx) > 100 else abs(dx//6)
@@ -259,14 +258,14 @@ class AimAide():
                     pyautogui.move(int(dx//smooth/MOUSE_X_MOVE_DAMPING), int(dy//smooth/MOUSE_Y_MOVE_DAMPING), 0, _pause=False)
                 _ = accurate_timing(sensitivity)
     
+    def _visualize(self, 
+                   frame: Union[np.ndarray, torch.Tensor], 
+                   bboxes: Union[np.ndarray, list], 
+                   confs: Union[np.ndarray, list], 
+                   labels: Union[np.ndarray, list], 
+                   min_conf: float) -> np.ndarray:
 
-    def _visualize(self, frame: np.ndarray, 
-                         bboxes: Union[np.ndarray, list], 
-                         confs: Union[np.ndarray, list], 
-                         labels: Union[np.ndarray, list], 
-                         min_conf: float) -> np.ndarray:
-
-        if not isinstance(frame, np.ndarray):
+        if isinstance(frame, torch.Tensor):
             frame = frame.squeeze().permute(1, 2, 0).cpu().numpy() * 255
         frame = np.ascontiguousarray(frame, dtype=np.uint8)
         for bbox, conf, label in zip(bboxes, confs, labels):
@@ -282,7 +281,6 @@ class AimAide():
 
         return frame
 
-
     def _benchmark(self, infer_method: str) -> None:
         t1 = time.perf_counter()
         while time.perf_counter() - t1 < 5:
@@ -293,7 +291,9 @@ class AimAide():
         self.run(infer_method, min_conf=.8, visualize=False, prefer_body=False, sensitivity=1, view_only=True, benchmark=True)
 
 
-    def run(self, infer_method: str, min_conf: float, sensitivity: int, visualize: bool, prefer_body: bool, view_only: bool, benchmark: bool) -> None:
+    def run(self, infer_method: str, min_conf: float, sensitivity: int, 
+            visualize: bool, prefer_body: bool, view_only: bool, benchmark: bool) -> None:
+
         self._switch_side(self.side)
         self.listener_switch = Thread(target=self.user_switch_side, daemon=True)
         self.listener_switch.start()
