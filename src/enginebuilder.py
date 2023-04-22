@@ -7,7 +7,7 @@ from .utils_trt import EngineBuilder
 #https://github.com/triple-Mu/YOLOv8-TensorRT
 
 
-def build_engine(weights, input_shape, output_pkl):
+def build_engine(weights: str, input_shape: tuple, output_pkl: str) -> None:
     model = YOLO(weights)
     model.model.fuse()
     YOLOv8 = model.model.model

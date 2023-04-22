@@ -54,8 +54,6 @@ class EngineBuilder:
         self.network = network
         if self.api:
             self.build_from_api(fp16, input_shape, iou_thres, conf_thres, topk)
-        else:
-            self.build_from_onnx(iou_thres, conf_thres, topk)
         if fp16 and self.builder.platform_has_fast_fp16:
             config.set_flag(trt.BuilderFlag.FP16)
         self.weight = self.checkpoint.with_suffix('.engine')
@@ -85,7 +83,7 @@ class EngineBuilder:
         iou_thres: float = 0.65,
         conf_thres: float = 0.25,
         topk: int = 100,
-    ):
+        ):
         assert not self.seg
         from .api import SPPF, C2f, Conv, Detect, get_depth, get_width
 
