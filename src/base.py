@@ -31,16 +31,23 @@ except ImportError as e:
 MOUSE_X_MOVE_DAMPING = 1
 MOUSE_Y_MOVE_DAMPING = 1.3
 
+SIDE_TARGET_LABEL_MAP = {'ct' : np.array([2, 3]),
+                          't' : np.array([0, 1]),
+                         'dm' : np.array([0, 1, 2, 3])
+                        }
+
+SIDE_COLOR_MAP = {'ct' : 'turquoise2',
+                  't'  : 'yellow',
+                  'dm' : 'green'
+                 }
+
+BODY_CT = 0
+BODY_T = 2
 
 class AimAide():
     def __init__(self, screensz: int, sectionsz: int, grabber: str, side: str) -> None:        
         self.side = side
-        if self.side == 'dm':
-            self._side_color = 'green'
-        if self.side == 'ct':
-            self._side_color = 'turquoise2'
-        if self.side == 't':
-           self._side_color = 'yellow'
+        self._switch_side(self.side)
 
         self.screen_width = screensz[0]
         self.screen_height = screensz[1]
@@ -74,18 +81,17 @@ class AimAide():
 
     def _switch_side(self, side: str) -> None:
         self.side = side
-        if side == 'ct':
-            self._side_color = 'turquoise2'
-        if side == 't':
-            self._side_color = 'yellow'
-        if side == 'dm':
-            self._side_color = 'green'
+        self._side_color = SIDE_COLOR_MAP[side]
 
     def user_switch_side(self) -> None:
         while True:
-            self.side = str(input(''))
-            self._switch_side(self.side)
-            print(end='\n')
+            user_in = str(input(''))
+            if user_in in SIDE_TARGET_LABEL_MAP:
+                print(f'[magenta]Switching side to: {user_in}')
+                self._switch_side(user_in)
+                print(end='\n')
+            else:
+                print(f'[red]Bad input {user_in}. Type ct, t or dm!')
 
     def _grab(self) -> np.ndarray:
         try: 
@@ -112,7 +118,7 @@ class AimAide():
                                        )
             tensor = torch.flip(tensor, dims=(2, )).permute(2, 0, 1)[None, :, :, :]
             
-            return tensor.type(torch.float16) / 255
+            return tensor.type(torch.float32) / 255
 
         except Exception as e:
             print(e)
@@ -138,8 +144,8 @@ class AimAide():
 
         bboxes, confs, labels = [], [], []
         for d in reversed(results[0].boxes):
-            bboxes.append(d.xywh.squeeze().cpu().numpy().astype(int).tolist())
-            confs.append(d.conf.squeeze().cpu().numpy().tolist())
+            bboxes.append(d.xywh.squeeze().cpu().numpy().astype(int))
+            confs.append(float(d.conf.squeeze().cpu()))
             labels.append(int(d.cls.squeeze().cpu()))
     
         bboxes = np.array(bboxes, dtype=np.uintc)
@@ -199,21 +205,15 @@ class AimAide():
                                   confs: np.ndarray, 
                                   labels: np.ndarray, 
                                   prefer_body: bool) -> tuple[int, int, int, int, int, int, int, int]:
-
+        
         conf = float(0)
-        if self.side == 'ct':
-            valid_idcs = np.where(labels>1)[0]
-            bboxes = bboxes[valid_idcs]
-            confs = confs[valid_idcs]
-            labels = labels[valid_idcs]
+        target = []
 
-        if self.side == 't':
-            valid_idcs = np.where(labels<=1)[0]
+        if labels.size > 1:
+            valid_idcs = np.in1d(labels, SIDE_TARGET_LABEL_MAP[self.side])
             bboxes = bboxes[valid_idcs]
             confs = confs[valid_idcs]
             labels = labels[valid_idcs]
-            
-        if labels.size > 1:
             dist = bboxes[:, 0] - self.section_size // 2
             right_sided = np.where(dist > 0)[0]
             if len(right_sided) > 0:
@@ -222,21 +222,21 @@ class AimAide():
                 confs = confs[right_sided]
                 labels = labels[right_sided]             
             closest = np.argsort(dist)
-
-            if (0 or 2 in labels) and (prefer_body):
-                closest_body_idx = np.where((labels[closest] == 0).any() or (labels[closest] == 2).any())[0][0]
+            
+            if (BODY_CT or BODY_T) in labels and (prefer_body):
+                closest_body_idx = np.where((labels[closest] == BODY_CT).any() or (labels[closest] == BODY_T).any())[0][0]
                 target_body_idx = closest[closest_body_idx]
                 target= bboxes[target_body_idx]
-                self.conf = float(confs[target_body_idx])
-            else:
+                conf = float(confs[target_body_idx])
+            elif len(closest) > 0:
                 target = bboxes[closest[0]]
-                self.conf = float(confs[closest[0]])
-            
-        elif labels.size == 1:
+                conf = float(confs[closest[0]])
+        
+        elif labels.size == 1 and labels in SIDE_TARGET_LABEL_MAP[self.side]:
             target = bboxes
             conf = float(confs)
 
-        if labels.size > 0:
+        if len(target) > 0:
             cx, cy, w, h = np.squeeze(target)
             x1, x2 = (cx - w//2 - self.section_size // 2, cx + w//2 - self.section_size // 2)
             y1, y2 = (cy - h//2 - self.section_size // 2, cx + h//2  - self.section_size // 2)
@@ -294,7 +294,6 @@ class AimAide():
     def run(self, infer_method: str, min_conf: float, sensitivity: int, 
             visualize: bool, prefer_body: bool, view_only: bool, benchmark: bool) -> None:
 
-        self._switch_side(self.side)
         self.listener_switch = Thread(target=self.user_switch_side, daemon=True)
         self.listener_switch.start()
         
