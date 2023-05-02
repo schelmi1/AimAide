@@ -21,12 +21,12 @@ So far only Mirage is supported (although it might work on other maps depending 
 Mirage medium model -> https://uploadnow.io/de/share?utm_source=gfv6Nc4 / https://www.file.io/K0dA/download/v5yQMonMRCHz<br> (unzip and put into /models)
 
 <h3>Road Map</h3>
-Models for CS2 and more maps<br>
+Models for CS2 and support for additional maps<br>
 Human-like aim methods (like windmouse or ai-based)
 
 <h3>Features</h3>
 YOLOv8 Models trained on mirage with various CT and T agents (body and head).<br>
-Simple linear mouse smooth mover locking onto closest target to current center.<br>
+Simple smooth linear mouse mover locking onto target closest to crosshair.<br>
 
 <h3>Hardware Requirements</h3>
 To get this to work the detector has to run at 30fps at least.<br>
