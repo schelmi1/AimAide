@@ -1,5 +1,7 @@
 import time
+import json
 import ctypes
+from rich import print
 from ctypes.wintypes import LARGE_INTEGER
 
 def accurate_timing(duration_ms: int) -> float:
@@ -19,3 +21,13 @@ def accurate_timing(duration_ms: int) -> float:
 
     return (time.perf_counter() - start_time) * 1000
 
+def parse_config(config_path: str) -> tuple[list, list, list, list]:
+    with open(config_path, 'r') as f:
+        data = json.load(f)
+
+    ct = data['CT']['all']
+    t = data['T']['all']
+    body_ct = data['CT']['body']
+    body_t = data['T']['body']
+
+    return (ct, t, body_ct, body_t)
