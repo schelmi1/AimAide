@@ -2,29 +2,30 @@ import os
 import sys
 import ctypes
 import argparse
-from packaging import version
 
 import torch
 import tensorrt
 from rich import print
 
 from src.enginebuilder import build_engine
-from src.utils_trt import TRTModule
 from src.base import AimAide
 
 
 class AimAideTrt(AimAide):
-    def __init__(self, screensz, sectionsz, grabber, model, side, no_engine_check):
-        super().__init__(screensz, sectionsz, grabber, side)
-    
+    def __init__(self, screensz: tuple, sectionsz: int, grabber: str, infer_method: str, 
+                 model_path: str, model_config_path: str, side: str, no_engine_check: bool):
         if torch.cuda.is_available():
             print('[green]CUDA device found:', torch.cuda.get_device_name(0))
         else:
             print('[red]No CUDA device found.')
             sys.exit(0)
 
-        print(f'TensorRT: {tensorrt.__version__}')
+        print(f'[green]TensorRT found:[/green] [cyan]{tensorrt.__version__}')
 
+        if model_path.endswith('pt'):
+            print('[yellow]Specified YOLO.pt when a TensorRT engine is needed...Loading TensorRT engine!')
+            model_path = model_path.replace('pt', 'engine')
+        
         if not no_engine_check:
             print('[yellow]Checking engines...')
             rel_path = 'models/'
@@ -42,27 +43,18 @@ class AimAideTrt(AimAide):
                     print(f'[yellow]Removing {pkl_filename}')
                     os.remove(os.path.join(rel_path, pkl_filename))
 
-        if model.endswith('pt'):
-            print('[yellow]Specified YOLO.pt when a TensorRT engine is needed...Loading TensorRT engine!')
-            model = model.replace('pt', 'engine')
-
-        inputsz = int(model.split('-')[1])
-        if isinstance(inputsz, int) and inputsz != self.section_size:
-            print(f'[red]Engine input size and grabber size are not the same.\nEngine: {inputsz}, Grabber: {self.section_size}\nChange the Grabber size by using the -input_size argument.')
-
-        self.model = TRTModule(model, device=0)
-        print(f'[green]Engine loaded:[/green] {model}')
-
+        super().__init__(screensz, sectionsz, grabber, infer_method, model_path, model_config_path, side)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='AimAide with TensorRT', description='Run AimAide with TensorRT')
     parser.add_argument('--input_size', type=int, default=320,  
                         help='dimension of the input image for the detector')
     parser.add_argument('--grabber', type=str, default='win32', help='selected grabber (win32, d3d_gpu, d3d_np) ')
-    parser.add_argument('--model', default='models\yolov8s_csgo_mirage-320-v41-al-gen-bg.engine', 
+    parser.add_argument('--model', default='models/yolov8s_csgo_mirage-320-v41-al-gen-bg.engine', 
                         help='selected engine (TensorRT) ')
+    parser.add_argument('--config', type=str, default='models/config.json', help='path to model config json')
     parser.add_argument('--side', type=str, default='dm', help='which side your are on, ct, t or dm (deathmatch))')
-    parser.add_argument('--minconf', type=float, default=0.7, help='minimum detection confidence')
+    parser.add_argument('--minconf', type=float, default=0.75, help='minimum detection confidence')
     parser.add_argument('--sensitivity' , type=int, default=1, 
                         help='sensitivity mode, increase when having a high framerate or chaotic aim')
     parser.add_argument('--visualize', action='store_true', help='show live detector output in a new window')
@@ -73,16 +65,16 @@ if __name__ == '__main__':
 
     w, h = ctypes.windll.user32.GetSystemMetrics(0), ctypes.windll.user32.GetSystemMetrics(1)
     try:
-        Aim = AimAideTrt((w, h), args.input_size, args.grabber, args.model, args.side, args.no_engine_check)
+        Aim = AimAideTrt((w, h), args.input_size, args.grabber, 'trt', args.model, args.config, args.side, args.no_engine_check)
     except AttributeError as e:
         print(e)
         print('[red]The selected engine is incompatible with your TensorRT version.\nDelete the engine from the models folder and run again to build a new engine from YOLO weights.')
         sys.exit()
 
     if args.benchmark:
-        Aim._benchmark('trt')
+        Aim._benchmark()
     else:
-        Aim.run('trt', args.minconf, args.sensitivity, args.visualize, False, args.view_only, args.benchmark)
+        Aim.run(args.minconf, args.sensitivity, args.visualize, False, args.view_only, args.benchmark)
 
     Aim.listener_switch.join()
 

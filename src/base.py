@@ -1,5 +1,6 @@
 global d3d_err_flag
 
+import os
 import sys
 import time
 from typing import Union
@@ -17,54 +18,62 @@ import torch
 import pyautogui
 import numpy as np
 from rich import print
+from ultralytics import YOLO
 import win32gui, win32ui, win32con
 from torchvision.ops import box_convert
 
-from .utils import accurate_timing
+from .utils import accurate_timing, parse_config
 
 try:
-    from .utils_trt import blob, letterbox, det_postprocess
+    from .utils_trt import blob, letterbox, det_postprocess, TRTModule
 except ImportError as e:
-    print(e, 'only YOLO inference available!')
-
+    print(f'[yellow]{e}, only YOLO inference available!')
 
 MOUSE_X_MOVE_DAMPING = 1
 MOUSE_Y_MOVE_DAMPING = 1.3
-
-SIDE_TARGET_LABEL_MAP = {'ct' : np.array([2, 3]),
-                          't' : np.array([0, 1]),
-                         'dm' : np.array([0, 1, 2, 3])
-                        }
 
 SIDE_COLOR_MAP = {'ct' : 'turquoise2',
                   't'  : 'yellow',
                   'dm' : 'green'
                  }
 
-BODY_CT = 0
-BODY_T = 2
-
 class AimAide():
-    def __init__(self, screensz: int, sectionsz: int, grabber: str, side: str) -> None:        
-        self.side = side
-        self._switch_side(self.side)
+    def __init__(self, screensz: tuple[int, int], sectionsz: int, grabber: str, infer_method: str,  
+                 model_path: str, model_config_path: str, side: str) -> None:
+        model_size = os.path.basename(model_path).split('-')[1]
+        inputsz = int(model_size) if model_size.isnumeric() else model_size
+        if isinstance(inputsz, int) and inputsz != sectionsz:
+            print(f'[red]Model input size and grabber size are not the same.\nModel: {inputsz}, Grabber: {sectionsz}\nChange the grabber size by using the --input_size argument.')
+        elif not isinstance(inputsz, int):
+            print('[red]Unknown model name format.')
 
-        self.screen_width = screensz[0]
-        self.screen_height = screensz[1]
+        self.model_path = model_path
+
+        self.side = side
+        self._side_color = SIDE_COLOR_MAP[side]
+
+        self.screen_width, self.screen_height = screensz
+
+        assert isinstance(self.screen_width, int)
+        assert isinstance(self.screen_height, int)
+
         self.section_size = sectionsz
         self.center_x = self.screen_width // 2
         self.center_y = self.screen_height // 2
         
         try:
             if grabber == 'd3d_gpu' and not d3d_err_flag:
+                print('[red]D3D GPU GRABBING IS CURRENTLY NOT WORKING AND WILL BE REWRITTEN.\nUse win32 or d3d_np!')
                 self._grabber = 'd3d_gpu'
                 self.d = d3dshot.create(capture_output="pytorch_gpu")
                 self.d.display = self.d.displays[0]
+                sys.exit()
 
             if grabber == 'd3d_np' and not d3d_err_flag:
                 self._grabber = 'd3d_np'
                 self.d = d3dshot.create(capture_output="numpy")
                 self.d.display = self.d.displays[0]
+                self._grabfunc = self._grab_d3d_np
 
             if grabber == 'win32' or d3d_err_flag:
                 self._grabber = 'win32'
@@ -73,25 +82,45 @@ class AimAide():
                 self.dataBitMap = win32ui.CreateBitmap()
                 self.dataBitMap.CreateCompatibleBitmap(self.dcObj, self.section_size, self.section_size)
                 self.cDC.SelectObject(self.dataBitMap)
+                self._grabfunc = self._grab
+
+            print(f'[green]Grabber started:[/green] {self._grabber}')
+            
+            if infer_method == 'trt':
+                self.model = TRTModule(self.model_path, device=0)
+                self._infer_func = self._inference_trt
+
+            if infer_method == 'yolo':
+                self.model = YOLO(self.model_path)
+                self._infer_func = self._inference_yolo
+
+            print(f'[green]Model loaded:[/green] {self.model_path}')
+
         except Exception as e:
             print(e)
             sys.exit()
-                   
-        print(f'[green]Grabber started:[/green] {self._grabber}')
+    
+        ct, t, body_ct, body_t = parse_config(model_config_path)
+        self.side_target_label_map = {'ct':t, 't':ct, 'body_ct':body_t, 'body_t':body_ct, 'dm':ct + t}
+        print(f'[green]Model config file loaded[/green]: {model_config_path}')
 
     def _switch_side(self, side: str) -> None:
-        self.side = side
-        self._side_color = SIDE_COLOR_MAP[side]
+        if side in self.side_target_label_map:
+            self.side = side
+        else:
+            self.side = 'dm'
+
+        print(f'[magenta]Switching side to: {self.side}')
+        self._side_color = SIDE_COLOR_MAP[self.side]
+        print(end='\n')
 
     def user_switch_side(self) -> None:
         while True:
             user_in = str(input(''))
-            if user_in in SIDE_TARGET_LABEL_MAP:
-                print(f'[magenta]Switching side to: {user_in}')
+            if user_in in self.side_target_label_map:
                 self._switch_side(user_in)
-                print(end='\n')
             else:
-                print(f'[red]Bad input {user_in}. Type ct, t or dm!')
+                print(f'[red]Bad input [bold]{user_in}[/bold]. Type ct, t or dm!')
 
     def _grab(self) -> np.ndarray:
         try: 
@@ -131,20 +160,14 @@ class AimAide():
                                             self.screen_height//2 + self.section_size//2)
                                     )
             
-            return img
+            return img[..., ::-1]
 
-    def _inference_yolo(self)-> tuple([np.ndarray, np.ndarray, np.ndarray, np.ndarray]):
-        if self._grabber == 'win32':
-            img = self._grab()
-
-        if self._grabber == 'd3d_np':
-            img = self._grab_d3d_np()
-
+    def _inference_yolo(self, img: np.ndarray)-> tuple[np.ndarray, np.ndarray, np.ndarray]:
         results = self.model.predict(img, device=0, verbose=False, max_det=10)
 
         bboxes, confs, labels = [], [], []
         for d in reversed(results[0].boxes):
-            bboxes.append(d.xywh.squeeze().cpu().numpy().astype(int))
+            bboxes.append(d.xywh.squeeze().cpu().numpy())
             confs.append(float(d.conf.squeeze().cpu()))
             labels.append(int(d.cls.squeeze().cpu()))
     
@@ -155,21 +178,9 @@ class AimAide():
         if bboxes.ndim == 1:
             bboxes = bboxes[None, :]
 
-        return (img, bboxes, confs, labels)
+        return (bboxes, confs, labels)
 
-    def _inference_trt(self) -> tuple([Union[np.ndarray, torch.Tensor], np.ndarray, np.ndarray, np.ndarray]):
-        if self._grabber == 'd3d_gpu':
-            tensor = self._grab_d3d_gpu()
-            ratio = 1.
-            dwdh = torch.tensor([0., 0., 0., 0.], device=0)
-            img = tensor
-        
-        if self._grabber == 'win32':
-            img = self._grab()
-
-        if self._grabber == 'd3d_np':
-            img = self._grab_d3d_np()
-
+    def _inference_trt(self, img: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         if self._grabber == 'd3d_np' or self._grabber == 'win32':
             bgr, ratio, dwdh = letterbox(img, (self.section_size, self.section_size))
             tensor = blob(bgr[:, :, ::-1], return_seg=False)
@@ -183,7 +194,7 @@ class AimAide():
         
         if len(bboxes) > 0:
             bboxes = box_convert(bboxes,'xyxy', 'cxcywh')
-        bboxes =  bboxes.squeeze().cpu().numpy().astype(np.intc)
+        bboxes =  bboxes.squeeze().cpu().numpy().astype(np.uintc)
         confs = confs.squeeze().cpu().numpy().tolist()
         labels = labels.squeeze().cpu().numpy().tolist()
 
@@ -198,19 +209,16 @@ class AimAide():
         if bboxes.ndim == 1:
             bboxes = bboxes[None, :]
 
-        return (img, bboxes, confs, labels)
+        return (bboxes, confs, labels)
 
     def _perform_target_selection(self, 
                                   bboxes: np.ndarray, 
                                   confs: np.ndarray, 
                                   labels: np.ndarray, 
-                                  prefer_body: bool) -> tuple[int, int, int, int, int, int, int, int]:
-        
-        conf = float(0)
+                                  prefer_body: bool) -> tuple[bool, float, int, int, int, int, int, int, int, int]:
         target = []
-
         if labels.size > 1:
-            valid_idcs = np.in1d(labels, SIDE_TARGET_LABEL_MAP[self.side])
+            valid_idcs = np.in1d(labels, self.side_target_label_map[self.side])
             bboxes = bboxes[valid_idcs]
             confs = confs[valid_idcs]
             labels = labels[valid_idcs]
@@ -223,16 +231,18 @@ class AimAide():
                 labels = labels[right_sided]             
             closest = np.argsort(dist)
             
-            if (BODY_CT or BODY_T) in labels and (prefer_body):
-                closest_body_idx = np.where((labels[closest] == BODY_CT).any() or (labels[closest] == BODY_T).any())[0][0]
-                target_body_idx = closest[closest_body_idx]
-                target= bboxes[target_body_idx]
-                conf = float(confs[target_body_idx])
+            if (self.side_target_label_map['body_ct'] or self.side_target_label_map['body_t']) in labels and (prefer_body):
+                closest_body_idx = np.where((labels[closest] == self.side_target_label_map['body_ct']).any() or (labels[closest] == self.side_target_label_map['body_t']).any())[0][0]
+                if len(closest_body_idx) > 0:
+                    target_body_idx = closest[closest_body_idx]
+                    target = bboxes[target_body_idx]
+                    conf = float(confs[target_body_idx])
+
             elif len(closest) > 0:
                 target = bboxes[closest[0]]
                 conf = float(confs[closest[0]])
         
-        elif labels.size == 1 and labels in SIDE_TARGET_LABEL_MAP[self.side]:
+        elif labels.size == 1 and labels in self.side_target_label_map[self.side]:
             target = bboxes
             conf = float(confs)
 
@@ -245,7 +255,7 @@ class AimAide():
 
             return (True, conf, x1, y1, x2, y2, w, h, dx, dy)
         else:
-            return (False, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+            return (False, float(0), 0, 0, 0, 0, 0, 0, 0, 0)
 
     def _smooth_linear_aim(self, dx: int, dy: int, xyxywh: list, sensitivity: int) -> None:
             x1, y1, x2, y2, w, h = xyxywh
@@ -281,17 +291,17 @@ class AimAide():
 
         return frame
 
-    def _benchmark(self, infer_method: str) -> None:
+    def _benchmark(self) -> None:
         t1 = time.perf_counter()
         while time.perf_counter() - t1 < 5:
             t = time.perf_counter() - t1
             print(f'Running in benchmark mode for 300 iterations in {(4-t):.1f} sec!', end='\r', flush=True)
             time.sleep(1)
         print('\n')
-        self.run(infer_method, min_conf=.8, visualize=False, prefer_body=False, sensitivity=1, view_only=True, benchmark=True)
+        self.run(min_conf=.8, visualize=False, prefer_body=False, sensitivity=1, view_only=True, benchmark=True)
 
 
-    def run(self, infer_method: str, min_conf: float, sensitivity: int, 
+    def run(self, min_conf: float, sensitivity: int, 
             visualize: bool, prefer_body: bool, view_only: bool, benchmark: bool) -> None:
 
         self.listener_switch = Thread(target=self.user_switch_side, daemon=True)
@@ -301,16 +311,12 @@ class AimAide():
         conf = 0
         count_fps, count = 0, 0
         dx, dy = 0, 0
-
-        if infer_method == 'trt':
-            _infer_func = self._inference_trt
-        if infer_method == 'yolo':
-            _infer_func = self._inference_yolo
-
+        
         avg_fps = []
         while True:
             runtime_start = time.perf_counter()
-            img, bboxes, confs, labels = _infer_func()
+            img = self._grabfunc()
+            bboxes, confs, labels = self._infer_func(img)
             detected, conf, x1, y1, x2, y2, w, h, dx, dy = self._perform_target_selection(bboxes, confs, labels, prefer_body=prefer_body)
 
             if detected and conf > min_conf and np.hypot(dx, dy) < max_dist and not view_only:
