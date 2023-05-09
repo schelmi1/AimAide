@@ -9,7 +9,7 @@ External realtime object detection-based aim aiding powered by <b>YOLOv8</b>, <b
 <h3>Latest changes/additions</h3>
 
 <b>16/04/23</b> - engine builder added to circumvent TensorRT incompatibilities <br>(by https://github.com/triple-Mu/YOLOv8-TensorRT)<br>
-<b>15/04/23</b> - introduced 320x320 input models which drastically increase fps with TensorRT<br>
+<b>15/04/23</b> - introduced 320x320 input models which drastically increase fps with YOLO and TensorRT<br>
 <br>
 11/04/23 - added two optional grabbers based on the d3dshot repo:</br>
 *d3d_gpu -> direct gpu grabbing with up to 30% performance increase (TensorRT only!)</br>
