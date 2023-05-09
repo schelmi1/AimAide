@@ -15,10 +15,10 @@ External realtime object detection-based aim aiding powered by <b>YOLOv8</b>, <b
 *d3d_gpu -> direct gpu grabbing with up to 30% performance increase (TensorRT only!)</br>
 *d3d_np -> accelerated cpu grabbing with up to 15% performance increase</br>
 access these via the new argument --grabber d3d_gpu / d3d_np</br>
-11/04/23 - added improved v7 small model</br></br>
+11/04/23 - added improved v7 small model</br>
 
-So far only Mirage is supported (although it might work on other maps depending on used agents).<br>
-Mirage medium model -> https://uploadnow.io/de/share?utm_source=gfv6Nc4 / https://www.file.io/K0dA/download/v5yQMonMRCHz<br> (unzip and put into /models)
+<h3>Supported Maps</h3>
+* Mirage
 
 <h3>Road Map</h3>
 Models for CS2 and support for additional maps<br>
@@ -84,7 +84,7 @@ Switch to CSGO and run/look around. At the end the average fps of the detector d
 | --visualize       | False                                | show live detector output in a new window                              |
 | --view_only       | False                                | run in view only mode (disarmed)                                       |
 | --benchmark       | False                                | launch benchmark mode                                                  |
-| --no_engine_check | False                                | skips engine checking and building (only run_tensorrt.py)              |
+| --no_engine_check | False                                | skips engine checking and building (run_tensorrt.py only)              |
 
 
 
