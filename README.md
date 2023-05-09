@@ -1,6 +1,7 @@
 # AimAide for CSGO and soon CS2
 
-External realtime object detection-based aim aiding powered by <b>YOLOv8</b>, <b>CUDA</b> and <b>TensorRT</b>
+External realtime object detection-based aim aiding powered by <b>YOLOv8</b>, <b>CUDA</b> and <b>TensorRT</b><br>
+[Twitter for further development updates](https://twitter.com/AimAideCS)
 
 <img src="/docs/header_cts.jpg"><br>
 [Video Demo here](https://github.com/schelmi1/AimAide/blob/main/docs/demo.mp4?raw=true)
@@ -9,24 +10,24 @@ External realtime object detection-based aim aiding powered by <b>YOLOv8</b>, <b
 <h3>Latest changes/additions</h3>
 
 <b>16/04/23</b> - engine builder added to circumvent TensorRT incompatibilities <br>(by https://github.com/triple-Mu/YOLOv8-TensorRT)<br>
-<b>15/04/23</b> - introduced 320x320 input models which drastically increase fps with TensorRT<br>
+<b>15/04/23</b> - introduced 320x320 input models which drastically increase fps with YOLO and TensorRT<br>
 <br>
 11/04/23 - added two optional grabbers based on the d3dshot repo:</br>
 *d3d_gpu -> direct gpu grabbing with up to 30% performance increase (TensorRT only!)</br>
 *d3d_np -> accelerated cpu grabbing with up to 15% performance increase</br>
 access these via the new argument --grabber d3d_gpu / d3d_np</br>
-11/04/23 - added improved v7 small model</br></br>
+11/04/23 - added improved v7 small model</br>
 
-So far only Mirage is supported (although it might work on other maps depending on used agents).<br>
-Mirage medium model -> https://uploadnow.io/de/share?utm_source=gfv6Nc4 / https://www.file.io/K0dA/download/v5yQMonMRCHz<br> (unzip and put into /models)
+<h3>Supported Maps</h3>
+* Mirage
 
 <h3>Road Map</h3>
-Models for CS2 and more maps<br>
+Models for CS2 and support for additional maps<br>
 Human-like aim methods (like windmouse or ai-based)
 
 <h3>Features</h3>
 YOLOv8 Models trained on mirage with various CT and T agents (body and head).<br>
-Simple linear mouse smooth mover locking onto closest target to current center.<br>
+Simple smooth linear mouse mover locking onto target closest to crosshair.<br>
 
 <h3>Hardware Requirements</h3>
 To get this to work the detector has to run at 30fps at least.<br>
@@ -84,7 +85,7 @@ Switch to CSGO and run/look around. At the end the average fps of the detector d
 | --visualize       | False                                | show live detector output in a new window                              |
 | --view_only       | False                                | run in view only mode (disarmed)                                       |
 | --benchmark       | False                                | launch benchmark mode                                                  |
-| --no_engine_check | False                                | skips engine checking and building (only run_tensorrt.py)              |
+| --no_engine_check | False                                | skips engine checking and building (run_tensorrt.py only)              |
 
 
 
