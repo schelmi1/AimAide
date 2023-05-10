@@ -91,6 +91,9 @@ Switch to CSGO and run/look around. At the end the average fps of the detector d
 
 <h3>FAQ</h3>
 
+Q: Why does AimAide seem to be stuck on launch?<br>
+A: This is a known issue with the YOLO class, run your command line as administrator.<br>
+<br>
 Q: Why is the aiming is so chaotic and unnatural?<br>
 A: Probably due to high detector framerate. Increase the sensitivity mode by running with arg -sensitivity (default is 1)<br>
 <br>
