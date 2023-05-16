@@ -39,11 +39,8 @@ if __name__ == '__main__':
     parser.add_argument('--minconf', type=float, default=0.75, help='minimum detection confidence')
     parser.add_argument('--sensitivity' , type=int, default=1, 
                         help='sensitivity mode, increase when having a high framerate or chaotic aim')
-<<<<<<< HEAD
     parser.add_argument('--flickieness' , type=int, default=4, 
                         help='how flicky the mouse mover behaves (4 is slow, 16 is very flicky)')
-=======
->>>>>>> ca6c479b4d15540a97ca0618413a85b5a7525ef4
     parser.add_argument('--visualize', action='store_true', help='show live detector output in a new window')
     parser.add_argument('--view_only', action='store_true', help='run in view only mode (disarmed)')
     parser.add_argument('--benchmark', action='store_true', help='launch benchmark mode')
@@ -51,24 +48,15 @@ if __name__ == '__main__':
 
     w, h = ctypes.windll.user32.GetSystemMetrics(0), ctypes.windll.user32.GetSystemMetrics(1)
 
-<<<<<<< HEAD
-=======
-    assert isinstance(w, int)
-    assert isinstance(h, int)
-
->>>>>>> ca6c479b4d15540a97ca0618413a85b5a7525ef4
     Aim = AimAideYolo((w, h), args.input_size, args.grabber, 'yolo', args.model, args.config, args.side)
 
     if args.benchmark:
         Aim._benchmark()
     else:
-<<<<<<< HEAD
         Aim.run(args.minconf, args.sensitivity, args.flickieness, args.visualize, False, args.view_only, args.benchmark)
-=======
-        Aim.run(args.minconf, args.sensitivity, args.visualize, False, args.view_only, args.benchmark)
->>>>>>> ca6c479b4d15540a97ca0618413a85b5a7525ef4
 
     Aim.listener_switch.join()
 
     if not Aim._grabber == 'win32':
         Aim.d.stop()
+    ####
