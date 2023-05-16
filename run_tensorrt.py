@@ -35,7 +35,11 @@ class AimAideTrt(AimAide):
                 engine_filename = file.replace('pt', 'engine')
                 if engine_filename not in engines:
                     inputsz = int(engine_filename.split('-')[1])
+<<<<<<< HEAD
                     print(f'[red]{engine_filename} is missing.[/red] [magenta]Building engine from YOLO weights. This may take a while...')
+=======
+                    print(f'[red]{engine_filename} missing.[/red] [magenta]Building engine from YOLO weights. This may take a while...')
+>>>>>>> ca6c479b4d15540a97ca0618413a85b5a7525ef4
                     pkl_filename = engine_filename.replace('engine', 'pkl')
                     pt_filename =  engine_filename.replace('engine', 'pt')
                     input_shape = (1, 3, inputsz, inputsz)
@@ -57,8 +61,11 @@ if __name__ == '__main__':
     parser.add_argument('--minconf', type=float, default=0.75, help='minimum detection confidence')
     parser.add_argument('--sensitivity' , type=int, default=1, 
                         help='sensitivity mode, increase when having a high framerate or chaotic aim')
+<<<<<<< HEAD
     parser.add_argument('--flickieness' , type=int, default=4, 
                         help='how flicky the mouse mover behaves (16 = very flicky)')
+=======
+>>>>>>> ca6c479b4d15540a97ca0618413a85b5a7525ef4
     parser.add_argument('--visualize', action='store_true', help='show live detector output in a new window')
     parser.add_argument('--view_only', action='store_true', help='run in view only mode (disarmed)')
     parser.add_argument('--benchmark', action='store_true', help='launch benchmark mode')
@@ -76,7 +83,11 @@ if __name__ == '__main__':
     if args.benchmark:
         Aim._benchmark()
     else:
+<<<<<<< HEAD
         Aim.run(args.minconf, args.sensitivity, args.flickieness, args.visualize, False, args.view_only, args.benchmark)
+=======
+        Aim.run(args.minconf, args.sensitivity, args.visualize, False, args.view_only, args.benchmark)
+>>>>>>> ca6c479b4d15540a97ca0618413a85b5a7525ef4
 
     Aim.listener_switch.join()
 

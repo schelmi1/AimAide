@@ -8,10 +8,17 @@ External realtime object detection-based aim aiding powered by <b>YOLOv8</b>, <b
 <br>
 
 <h3>Latest changes/additions</h3>
+<<<<<<< HEAD
 
 <b>16/04/23</b> - engine builder added to circumvent TensorRT incompatibilities <br>(by https://github.com/triple-Mu/YOLOv8-TensorRT)<br>
 <b>15/04/23</b> - introduced 320x320 input models which drastically increase fps with YOLO and TensorRT<br>
 <br>
+=======
+<b>09/05/23</b> - bug in d3d_np grabber fixed (mixed up color channels), code improvements, removed engines from repo (engines will be built locally), d3d_gpu is disabled and needs to be rewritten
+<br><br>
+16/04/23 - engine builder added to circumvent TensorRT incompatibilities <br>(by https://github.com/triple-Mu/YOLOv8-TensorRT)<br>
+15/04/23 - introduced 320x320 input models which drastically increase fps with YOLO and TensorRT<br>
+>>>>>>> ca6c479b4d15540a97ca0618413a85b5a7525ef4
 11/04/23 - added two optional grabbers based on the d3dshot repo:</br>
 *d3d_gpu -> direct gpu grabbing with up to 30% performance increase (TensorRT only!)</br>
 *d3d_np -> accelerated cpu grabbing with up to 15% performance increase</br>
@@ -80,7 +87,11 @@ Switch to CSGO and run/look around. At the end the average fps of the detector d
 | --grabber      | 'win32'                                  | select screen grabber (win32, d3d_gpu, d3d_np)                          |
 | --model           | models/yolov8s_csgo_mirage-320-v41-al-gen-bg | selected engine (TensorRT) or weights (YOLOv8)               |          
 | --side            | 'dm'                                 | which side your are on, 'ct', 't' or 'dm' (deathmatch)                 | 
+<<<<<<< HEAD
 | --minconf         | 0.7                                  | minimum detection confidence                                           |  
+=======
+| --minconf         | 0.75                                  | minimum detection confidence                                           |  
+>>>>>>> ca6c479b4d15540a97ca0618413a85b5a7525ef4
 | --sensitivity     | 1                                    | sensitivity mode, increase when having a high framerate or chaotic aim |
 | --visualize       | False                                | show live detector output in a new window                              |
 | --view_only       | False                                | run in view only mode (disarmed)                                       |
@@ -91,6 +102,12 @@ Switch to CSGO and run/look around. At the end the average fps of the detector d
 
 <h3>FAQ</h3>
 
+<<<<<<< HEAD
+=======
+Q: Why does AimAide seem to be stuck on launch?<br>
+A: This is a known issue with the YOLO class, run your command line as administrator.<br>
+<br>
+>>>>>>> ca6c479b4d15540a97ca0618413a85b5a7525ef4
 Q: Why is the aiming is so chaotic and unnatural?<br>
 A: Probably due to high detector framerate. Increase the sensitivity mode by running with arg -sensitivity (default is 1)<br>
 <br>

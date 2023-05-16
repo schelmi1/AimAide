@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+global d3d_err_flag
+>>>>>>> ca6c479b4d15540a97ca0618413a85b5a7525ef4
 
 import os
 import sys
@@ -7,10 +11,17 @@ from threading import Thread
 
 try:
     import d3dshot
+<<<<<<< HEAD
     d3d_err_flag: bool = False
 except ImportError as e:
     print(e, '...running win32 grabber')
     d3d_err_flag: bool = True
+=======
+    d3d_err_flag = False
+except ImportError as e:
+    print(e, '...running win32 grabber')
+    d3d_err_flag = True
+>>>>>>> ca6c479b4d15540a97ca0618413a85b5a7525ef4
 
 import cv2
 import torch 
@@ -28,8 +39,13 @@ try:
 except ImportError as e:
     print(f'[yellow]{e}, only YOLO inference available!')
 
+<<<<<<< HEAD
 MOUSE_X_MOVE_DAMPING: float = 1
 MOUSE_Y_MOVE_DAMPING: float = 1.3
+=======
+MOUSE_X_MOVE_DAMPING = 1
+MOUSE_Y_MOVE_DAMPING = 1.3
+>>>>>>> ca6c479b4d15540a97ca0618413a85b5a7525ef4
 
 SIDE_COLOR_MAP = {'ct' : 'turquoise2',
                   't'  : 'yellow',
@@ -46,6 +62,11 @@ class AimAide():
         elif not isinstance(inputsz, int):
             print('[red]Unknown model name format.')
 
+<<<<<<< HEAD
+=======
+        self.model_path = model_path
+
+>>>>>>> ca6c479b4d15540a97ca0618413a85b5a7525ef4
         self.side = side
         self._side_color = SIDE_COLOR_MAP[side]
 
@@ -84,6 +105,7 @@ class AimAide():
             print(f'[green]Grabber started:[/green] {self._grabber}')
             
             if infer_method == 'trt':
+<<<<<<< HEAD
                 self.model = TRTModule(model_path, device=0)
                 self._infer_func = self._inference_trt
 
@@ -92,6 +114,16 @@ class AimAide():
                 self._infer_func = self._inference_yolo
 
             print(f'[green]Model loaded:[/green] {model_path}')
+=======
+                self.model = TRTModule(self.model_path, device=0)
+                self._infer_func = self._inference_trt
+
+            if infer_method == 'yolo':
+                self.model = YOLO(self.model_path)
+                self._infer_func = self._inference_yolo
+
+            print(f'[green]Model loaded:[/green] {self.model_path}')
+>>>>>>> ca6c479b4d15540a97ca0618413a85b5a7525ef4
 
         except Exception as e:
             print(e)
@@ -129,7 +161,11 @@ class AimAide():
             img.shape = (self.section_size, self.section_size, 4)
             img = img[..., :3]
 
+<<<<<<< HEAD
             return img#cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+=======
+            return img
+>>>>>>> ca6c479b4d15540a97ca0618413a85b5a7525ef4
             
         except Exception as e:
             print(e)
@@ -157,8 +193,13 @@ class AimAide():
                                             self.screen_height//2 + self.section_size//2)
                                     )
             
+<<<<<<< HEAD
             return cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
     
+=======
+            return img[..., ::-1]
+
+>>>>>>> ca6c479b4d15540a97ca0618413a85b5a7525ef4
     def _inference_yolo(self, img: np.ndarray)-> tuple[np.ndarray, np.ndarray, np.ndarray]:
         results = self.model.predict(img, device=0, verbose=False, max_det=10)
 
@@ -180,7 +221,11 @@ class AimAide():
     def _inference_trt(self, img: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         if self._grabber == 'd3d_np' or self._grabber == 'win32':
             bgr, ratio, dwdh = letterbox(img, (self.section_size, self.section_size))
+<<<<<<< HEAD
             tensor = blob(cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB), return_seg=False)
+=======
+            tensor = blob(bgr[:, :, ::-1], return_seg=False)
+>>>>>>> ca6c479b4d15540a97ca0618413a85b5a7525ef4
             dwdh = torch.asarray(dwdh * 2, dtype=torch.float32, device=0)
             tensor = torch.asarray(tensor, device=0)
 
@@ -254,6 +299,7 @@ class AimAide():
         else:
             return (False, float(0), 0, 0, 0, 0, 0, 0, 0, 0)
 
+<<<<<<< HEAD
     def _smooth_linear_aim(self, dx: int, dy: int, xyxywh: list, sensitivity: int, flickieness: int) -> None:
             x1, y1, x2, y2, w, h = xyxywh
             n_steps = abs(dx//flickieness) if abs(dx) > 100 else abs(dx//flickieness)
@@ -262,6 +308,16 @@ class AimAide():
             for _ in range(n_steps):
                 smooth = 2 * n_steps * sensitivity
                 if (x1+w//3 > 0) or (x2-w//3 < 0) or (y1-h//4 > 0) or (y2+h//4 < 0):
+=======
+    def _smooth_linear_aim(self, dx: int, dy: int, xyxywh: list, sensitivity: int) -> None:
+            x1, y1, x2, y2, w, h = xyxywh
+            n_steps = abs(dx//4) if abs(dx) > 100 else abs(dx//6)
+            if n_steps <= 3:
+                n_steps = 2
+            for _ in range(n_steps):
+                smooth = 2 * n_steps * sensitivity
+                if (x1+w//4 > 0) or (x2-w//4 < 0) or (y1-h//8 > 0) or (y2+h//8 < 0):
+>>>>>>> ca6c479b4d15540a97ca0618413a85b5a7525ef4
                     pyautogui.move(int(dx//smooth/MOUSE_X_MOVE_DAMPING), int(dy//smooth/MOUSE_Y_MOVE_DAMPING), 0, _pause=False)
                 _ = accurate_timing(sensitivity)
     
@@ -298,7 +354,11 @@ class AimAide():
         self.run(min_conf=.8, visualize=False, prefer_body=False, sensitivity=1, view_only=True, benchmark=True)
 
 
+<<<<<<< HEAD
     def run(self, min_conf: float, sensitivity: int, flickness: int, 
+=======
+    def run(self, min_conf: float, sensitivity: int, 
+>>>>>>> ca6c479b4d15540a97ca0618413a85b5a7525ef4
             visualize: bool, prefer_body: bool, view_only: bool, benchmark: bool) -> None:
 
         self.listener_switch = Thread(target=self.user_switch_side, daemon=True)
@@ -317,7 +377,11 @@ class AimAide():
             detected, conf, x1, y1, x2, y2, w, h, dx, dy = self._perform_target_selection(bboxes, confs, labels, prefer_body=prefer_body)
 
             if detected and conf > min_conf and np.hypot(dx, dy) < max_dist and not view_only:
+<<<<<<< HEAD
                 self._smooth_linear_aim(dx, dy, [x1, y1, x2, y2, w, h], sensitivity, flickness)
+=======
+                self._smooth_linear_aim(dx, dy, [x1, y1, x2, y2, w, h], sensitivity)
+>>>>>>> ca6c479b4d15540a97ca0618413a85b5a7525ef4
 
             runtime_end = time.perf_counter()        
             if count_fps == 30:
