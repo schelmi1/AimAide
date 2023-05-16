@@ -11,9 +11,12 @@ External realtime object detection-based aim aiding powered by <b>YOLOv8</b>, <b
 
 
 <br>
-<b>16/05/23</b> - new model which is optimized on heads on mirage (high headshot rate)
+<b>16/05/23</b><br>
+-new model which is optimized on heads on mirage (high headshot rate)<br>
+models/yolov8s_csgo_mirage-320-v62-pal-gen-bg-head.pt<br>
+-added flickieness argument to control how fast the mouse mover should flick to target
 <br><br>
-09/05/23 - bug in d3d_np grabber fixed (mixed up color channels), code improvements, removed engines from repo (engines will be built locally), d3d_gpu is disabled and needs to be rewritten
+09/05/23 - bug in d3d_np grabber fixed (mixed up color channels), code improvements, removed engines from repo (engines will built locally),<br> d3d_gpu is disabled and needs to be rewritten<br>
 16/04/23 - engine builder added to circumvent TensorRT incompatibilities <br>(by https://github.com/triple-Mu/YOLOv8-TensorRT)<br>
 15/04/23 - introduced 320x320 input models which drastically increase fps with YOLO and TensorRT<br>
 
@@ -80,12 +83,9 @@ Switch to CSGO and run/look around. At the end the average fps of the detector d
 | --grabber      | 'win32'                                  | select screen grabber (win32, d3d_gpu, d3d_np)                          |
 | --model           | models/yolov8s_csgo_mirage-320-v41-al-gen-bg | selected engine (TensorRT) or weights (YOLOv8)               |          
 | --side            | 'dm'                                 | which side your are on, 'ct', 't' or 'dm' (deathmatch)                 | 
-<<<<<<< HEAD
-| --minconf         | 0.7                                  | minimum detection confidence                                           |  
-=======
 | --minconf         | 0.75                                  | minimum detection confidence                                           |  
->>>>>>> ca6c479b4d15540a97ca0618413a85b5a7525ef4
 | --sensitivity     | 1                                    | sensitivity mode, increase when having a high framerate or chaotic aim |
+| --flickieness     | 4                                    | how flicky the mouse mover behaves (4 is slow, 16 is very flicky) |
 | --visualize       | False                                | show live detector output in a new window                              |
 | --view_only       | False                                | run in view only mode (disarmed)                                       |
 | --benchmark       | False                                | launch benchmark mode                                                  |
@@ -94,13 +94,9 @@ Switch to CSGO and run/look around. At the end the average fps of the detector d
 
 
 <h3>FAQ</h3>
-
-<<<<<<< HEAD
-=======
 Q: Why does AimAide seem to be stuck on launch?<br>
 A: This is a known issue with the YOLO class, run your command line as administrator.<br>
 <br>
->>>>>>> ca6c479b4d15540a97ca0618413a85b5a7525ef4
 Q: Why is the aiming is so chaotic and unnatural?<br>
 A: Probably due to high detector framerate. Increase the sensitivity mode by running with arg -sensitivity (default is 1)<br>
 <br>
