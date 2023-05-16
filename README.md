@@ -12,7 +12,7 @@ External realtime object detection-based aim aiding powered by <b>YOLOv8</b>, <b
 
 <br>
 <b>16/05/23</b><br>
--new model which is optimized on heads on mirage (high headshot rate)<br>
+-new model which is optimized on heads on mirage (high headshot rate, --minconf 0.6 recommended)<br>
 models/yolov8s_csgo_mirage-320-v62-pal-gen-bg-head.pt<br>
 -added flickieness argument to control how fast the mouse mover should flick to target
 <br><br>
