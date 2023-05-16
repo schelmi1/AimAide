@@ -8,22 +8,15 @@ External realtime object detection-based aim aiding powered by <b>YOLOv8</b>, <b
 <br>
 
 <h3>Latest changes/additions</h3>
-<<<<<<< HEAD
 
-<b>16/04/23</b> - engine builder added to circumvent TensorRT incompatibilities <br>(by https://github.com/triple-Mu/YOLOv8-TensorRT)<br>
-<b>15/04/23</b> - introduced 320x320 input models which drastically increase fps with YOLO and TensorRT<br>
+
 <br>
-=======
-<b>09/05/23</b> - bug in d3d_np grabber fixed (mixed up color channels), code improvements, removed engines from repo (engines will be built locally), d3d_gpu is disabled and needs to be rewritten
+<b>16/05/23</b> - new model which is optimized on heads on mirage (high headshot rate)
 <br><br>
+09/05/23 - bug in d3d_np grabber fixed (mixed up color channels), code improvements, removed engines from repo (engines will be built locally), d3d_gpu is disabled and needs to be rewritten
 16/04/23 - engine builder added to circumvent TensorRT incompatibilities <br>(by https://github.com/triple-Mu/YOLOv8-TensorRT)<br>
 15/04/23 - introduced 320x320 input models which drastically increase fps with YOLO and TensorRT<br>
->>>>>>> ca6c479b4d15540a97ca0618413a85b5a7525ef4
-11/04/23 - added two optional grabbers based on the d3dshot repo:</br>
-*d3d_gpu -> direct gpu grabbing with up to 30% performance increase (TensorRT only!)</br>
-*d3d_np -> accelerated cpu grabbing with up to 15% performance increase</br>
-access these via the new argument --grabber d3d_gpu / d3d_np</br>
-11/04/23 - added improved v7 small model</br>
+
 
 <h3>Supported Maps</h3>
 * Mirage
