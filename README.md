@@ -68,28 +68,27 @@ medium (lowest framerate, best decetion performance)<br>
 5) Adjust mouse sensitivity in CS and/or sensitivity mode of AimAide
 
 <h3>Benchmark mode</h3>
-Run run_tensorrt.py or run_yolo.py with argument <b>-benchmark</b> to start in benchmark mode.<br>
+Run run_tensorrt.py or run_yolo.py with argument <b>--benchmark</b> to start in benchmark mode.<br>
 This is going to run the detector in view-only- and detect-all mode for 300 iterations.<br>
 Switch to CSGO and run/look around. At the end the average fps of the detector during that time will be displayed.
 <br><br>
 <img src="/docs/benchmark_mode1.png">
 
 <h3>Arguments<h3>
-
-
-| arg      | default   | Description                                                                                               |
-| ----      | ---       | ---                                                                                                      |
-| --input_size      | 320                                  | dimension of the input image for the detector                          |
-| --grabber      | 'win32'                                  | select screen grabber (win32, d3d_gpu, d3d_np)                          |
-| --model           | models/yolov8s_csgo_mirage-320-v41-al-gen-bg | selected engine (TensorRT) or weights (YOLOv8)               |          
-| --side            | 'dm'                                 | which side your are on, 'ct', 't' or 'dm' (deathmatch)                 | 
-| --minconf         | 0.75                                  | minimum detection confidence                                           |  
-| --sensitivity     | 1                                    | sensitivity mode, increase when having a high framerate or chaotic aim |
-| --flickieness     | 4                                    | how flicky the mouse mover behaves (4 is slow, 16 is very flicky) |
-| --visualize       | False                                | show live detector output in a new window                              |
-| --view_only       | False                                | run in view only mode (disarmed)                                       |
-| --benchmark       | False                                | launch benchmark mode                                                  |
-| --no_engine_check | False                                | skips engine checking and building (run_tensorrt.py only)              |
+  
+| arg      | default   | Description                                                                                                |
+| ----      | ---       | ---                                                                                                       |
+| <sub>--input_size</sub> | <sub>320</sub>             | <sub>dimension of the input image for the detector</sub>                  |
+| <sub>--grabber</sub>    | <sub>'win32'</sub>         | <sub>select screen grabber (win32, d3d_gpu, d3d_np) </sub>                           |
+| <sub>--model</sub>      | <sub>models/yolov8s_csgo_mirage-320-v41-al-gen-bg</sub>| <sub>selected engine (TensorRT) or weights (YOLOv8)</sub>|       
+| <sub>--side </sub>      | <sub>'dm'</sub>  | <sub>which side your are on, 'ct', 't' or 'dm' (deathmatch)</sub>                  | 
+| <sub>--minconf </sub>   | <sub>0.75</sub>  | <sub>minimum detection confidence</sub>                                            |  
+| <sub>--sensitivity</sub>     | <sub>1</sub> | <sub>sensitivity mode, increase when having a high framerate or chaotic aim</sub>  |
+| <sub>--flickieness</sub>     |<sub>4</sub>  | <sub>how flicky the mouse mover behaves (4 is slow, 16 is very flicky)</sub>  |
+| <sub>--visualize</sub>       |<sub>False</sub> | <sub>show live detector output in a new window</sub>                               |
+| <sub>--view_only </sub>      |<sub>False</sub> | <sub>run in view only mode (disarmed)</sub>                                        |
+| <sub>--benchmark</sub>       | <sub>False</sub> | <sub>launch benchmark mode</sub>                                                   |
+| <sub>--no_engine_check</sub> | <sub>False</sub> | <sub>skips engine checking and building (run_tensorrt.py only)</sub>       |
 
 
 
