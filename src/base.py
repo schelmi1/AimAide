@@ -70,7 +70,7 @@ class AimAide():
                 self._grabber = 'd3d_np'
                 self.d = d3dshot.create(capture_output="numpy")
                 self.d.display = self.d.displays[0]
-                self._grabfunc = self._grab_d3d_np
+                self._grab_func = self._grab_d3d_np
 
             if grabber == 'win32' or d3d_err_flag:
                 self._grabber = 'win32'
@@ -79,7 +79,7 @@ class AimAide():
                 self.dataBitMap = win32ui.CreateBitmap()
                 self.dataBitMap.CreateCompatibleBitmap(self.dcObj, self.section_size, self.section_size)
                 self.cDC.SelectObject(self.dataBitMap)
-                self._grabfunc = self._grab
+                self._grab_func = self._grab
 
             print(f'[green]Grabber started:[/green] {self._grabber}')
             
@@ -120,7 +120,7 @@ class AimAide():
                 print(f'[red]Bad input [bold]{user_in}[/bold]. Type ct, t or dm!')
 
     def _grab(self) -> np.ndarray:
-        try: 
+        try:
             self.cDC.BitBlt((0, 0), (self.section_size, self.section_size), self.dcObj, 
                             (self.center_x-self.section_size//2, self.center_y-self.section_size//2), 
                             win32con.SRCCOPY)
@@ -142,7 +142,7 @@ class AimAide():
                                                self.screen_width//2 + self.section_size//2, 
                                                self.screen_height//2 + self.section_size//2)
                                        )
-            tensor = torch.flip(tensor, dims=(2, )).permute(2, 0, 1)[None, :, :, :]
+            tensor = torch.flip(tensor, dims=(2, )).permute(2, 0, 1)[None, ...]
             
             return tensor.type(torch.float32) / 255
 
@@ -170,7 +170,7 @@ class AimAide():
     
         bboxes = np.array(bboxes, dtype=np.uintc)
         confs = np.array(confs, dtype=np.float64)
-        labels = np.array(labels, np.uintc)
+        labels = np.array(labels, dtype=np.uintc)
 
         if bboxes.ndim == 1:
             bboxes = bboxes[None, :]
@@ -255,16 +255,16 @@ class AimAide():
             return (False, float(0), 0, 0, 0, 0, 0, 0, 0, 0)
 
     def _smooth_linear_aim(self, dx: int, dy: int, xyxywh: list, sensitivity: int, flickieness: int) -> None:
-            x1, y1, x2, y2, w, h = xyxywh
-            n_steps = abs(dx//flickieness) if abs(dx) > 100 else abs(dx//flickieness)
-            if n_steps < 1:
-                n_steps = 1
-            for _ in range(n_steps):
-                smooth = 2 * n_steps * sensitivity
-                if (x1+w//3 > 0) or (x2-w//3 < 0) or (y1-h//4 > 0) or (y2+h//4 < 0):
-                    pyautogui.move(int(dx//smooth/MOUSE_X_MOVE_DAMPING), int(dy//smooth/MOUSE_Y_MOVE_DAMPING), 0, _pause=False)
-                _ = accurate_timing(sensitivity)
-    
+        x1, y1, x2, y2, w, h = xyxywh
+        n_steps = abs(dx//flickieness) if abs(dx) > 100 else abs(dx//flickieness)
+        if n_steps < 1:
+            n_steps = 1
+        for _ in range(n_steps):
+            smooth = 2 * n_steps * sensitivity
+            if (x1+w//3 > 0) or (x2-w//3 < 0) or (y1-h//4 > 0) or (y2+h//4 < 0):
+                pyautogui.move(int(dx//smooth/MOUSE_X_MOVE_DAMPING), int(dy//smooth/MOUSE_Y_MOVE_DAMPING), 0, _pause=False)
+            _ = accurate_timing(sensitivity)
+
     def _visualize(self, 
                    frame: Union[np.ndarray, torch.Tensor], 
                    bboxes: Union[np.ndarray, list], 
@@ -298,7 +298,7 @@ class AimAide():
         self.run(min_conf=.8, visualize=False, prefer_body=False, sensitivity=1, view_only=True, benchmark=True)
 
 
-    def run(self, min_conf: float, sensitivity: int, flickness: int, 
+    def run(self, min_conf: float, sensitivity: int, flickieness: int, 
             visualize: bool, prefer_body: bool, view_only: bool, benchmark: bool) -> None:
 
         self.listener_switch = Thread(target=self.user_switch_side, daemon=True)
@@ -312,12 +312,13 @@ class AimAide():
         avg_fps = []
         while True:
             runtime_start = time.perf_counter()
-            img = self._grabfunc()
+            img = self._grab_func()
             bboxes, confs, labels = self._infer_func(img)
             detected, conf, x1, y1, x2, y2, w, h, dx, dy = self._perform_target_selection(bboxes, confs, labels, prefer_body=prefer_body)
 
             if detected and conf > min_conf and np.hypot(dx, dy) < max_dist and not view_only:
-                self._smooth_linear_aim(dx, dy, [x1, y1, x2, y2, w, h], sensitivity, flickness)
+                self._smooth_linear_aim(dx, dy, [x1, y1, x2, y2, w, h], sensitivity, flickieness)
+
 
             runtime_end = time.perf_counter()        
             if count_fps == 30:

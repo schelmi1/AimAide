@@ -1,7 +1,3 @@
 __pycache__/
-<<<<<<< HEAD
 dev/
 models/*.engine
-=======
-dev/
->>>>>>> ca6c479b4d15540a97ca0618413a85b5a7525ef4
