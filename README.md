@@ -1,5 +1,7 @@
 # AimAide for CSGO and soon CS2
 
+*waiting for CS2 access, no updates for CSGO!
+
 External realtime object detection-based aim aiding powered by <b>YOLOv8</b>, <b>CUDA</b> and <b>TensorRT</b><br>
 [Twitter for further development updates](https://twitter.com/AimAideCS)
 
