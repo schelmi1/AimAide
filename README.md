@@ -1,6 +1,6 @@
 # AimAide for CSGO and soon CS2
 
-*waiting for CS2 access, no updates for CSGO!
+*still waiting for CS2 access, no updates for CSGO!
 
 External realtime object detection-based aim aiding powered by <b>YOLOv8</b>, <b>CUDA</b> and <b>TensorRT</b><br>
 [Twitter for further development updates](https://twitter.com/AimAideCS)
@@ -13,7 +13,15 @@ External realtime object detection-based aim aiding powered by <b>YOLOv8</b>, <b
 
 
 <br>
-<b>16/05/23</b><br>
+<b>25/07/23</b><br>
+-added a webui launcher for comfortably changing settings<br>
+just run launcher.py from your command line
+<br>
+<hr>
+<img src="/docs/launcher.png">
+<br>
+<hr>
+16/05/23<br>
 -new model which is optimized on heads on mirage (high headshot rate, --minconf 0.6 recommended)<br>
 models/yolov8s_csgo_mirage-320-v62-pal-gen-bg-head.pt<br>
 -added flickieness argument to control how fast the mouse mover should flick to target
