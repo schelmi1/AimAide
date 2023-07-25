@@ -1,6 +1,7 @@
 import sys
 import ctypes
 import argparse
+from threading import Event
 
 import torch
 from rich import print
@@ -53,7 +54,8 @@ if __name__ == '__main__':
     if args.benchmark:
         Aim._benchmark()
     else:
-        Aim.run(args.minconf, args.sensitivity, args.flickieness, args.visualize, False, args.view_only, args.benchmark)
+        c = Event()
+        Aim.run(args.minconf, args.sensitivity, args.flickieness, args.visualize, False, args.view_only, args.benchmark, c)
 
     Aim.listener_switch.join()
 

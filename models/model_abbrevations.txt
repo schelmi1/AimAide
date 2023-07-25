@@ -1,0 +1,18 @@
+bin = binary (binary model - CT T) OR
+gen = generalized (generalized model - CT CTh T Th) OR
+dif = differential (model differentiates between multiple agents - CT1, CT2 etc)
+
+syn = synthetic (model trained on a synthetic dataset)
+
+al = autolabeled (model trained with a dataset which was autolabeled by a bigger model) OR
+pal = partially autolabeled (model trained with a dataset which contains autolabeled data)
+
+ref = refined (model trained on same but refined dataset)
+
+bg = background (model trained with background images in dataset to reduce false positives)
+
+lr = longrange (optimized model for long distances)
+
+scp = scope (optimized model for scoped weapons)
+
+head = head (optimized model for detecting heads over a broad range of distances)

@@ -3,7 +3,7 @@ import os
 import sys
 import time
 from typing import Union
-from threading import Thread
+from threading import Thread, Event
 
 try:
     import d3dshot
@@ -46,13 +46,16 @@ class AimAide():
         elif not isinstance(inputsz, int):
             print('[red]Unknown model name format.')
 
+        self.running = False
         self.side = side
         self._side_color = SIDE_COLOR_MAP[side]
 
         self.screen_width, self.screen_height = screensz
 
-        assert isinstance(self.screen_width, int)
-        assert isinstance(self.screen_height, int)
+        if not isinstance(self.screen_width, int):
+            raise TypeError('screen_width type must be int')
+        if not isinstance(self.screen_height, int):
+            raise TypeError('screen_height type must be int')
 
         self.section_size = sectionsz
         self.center_x = self.screen_width // 2
@@ -66,13 +69,13 @@ class AimAide():
                 self.d.display = self.d.displays[0]
                 sys.exit()
 
-            if grabber == 'd3d_np' and not d3d_err_flag:
-                self._grabber = 'd3d_np'
+            elif grabber == 'd3d_cpu' and not d3d_err_flag:
+                self._grabber = 'd3d_cpu'
                 self.d = d3dshot.create(capture_output="numpy")
                 self.d.display = self.d.displays[0]
                 self._grab_func = self._grab_d3d_np
 
-            if grabber == 'win32' or d3d_err_flag:
+            elif grabber == 'win32' or d3d_err_flag:
                 self._grabber = 'win32'
                 self.dcObj = win32ui.CreateDCFromHandle(win32gui.GetWindowDC(win32gui.GetDesktopWindow()))
                 self.cDC = self.dcObj.CreateCompatibleDC()
@@ -87,7 +90,7 @@ class AimAide():
                 self.model = TRTModule(model_path, device=0)
                 self._infer_func = self._inference_trt
 
-            if infer_method == 'yolo':
+            elif infer_method == 'yolo':
                 self.model = YOLO(model_path)
                 self._infer_func = self._inference_yolo
 
@@ -133,7 +136,7 @@ class AimAide():
             
         except Exception as e:
             print(e)
-            sys.exit(0)
+            sys.exit()
     
     def _grab_d3d_gpu(self) -> torch.Tensor:
         try:
@@ -148,7 +151,7 @@ class AimAide():
 
         except Exception as e:
             print(e)
-            sys.exit(0)
+            sys.exit()
 
     def _grab_d3d_np(self) -> np.ndarray:
             img = self.d.screenshot(region=(self.screen_width//2 - self.section_size//2, 
@@ -156,7 +159,7 @@ class AimAide():
                                             self.screen_width//2 + self.section_size//2, 
                                             self.screen_height//2 + self.section_size//2)
                                     )
-            
+
             return cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
     
     def _inference_yolo(self, img: np.ndarray)-> tuple[np.ndarray, np.ndarray, np.ndarray]:
@@ -178,7 +181,7 @@ class AimAide():
         return (bboxes, confs, labels)
 
     def _inference_trt(self, img: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-        if self._grabber == 'd3d_np' or self._grabber == 'win32':
+        if self._grabber == 'd3d_cpu' or self._grabber == 'win32':
             bgr, ratio, dwdh = letterbox(img, (self.section_size, self.section_size))
             tensor = blob(cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB), return_seg=False)
             dwdh = torch.asarray(dwdh * 2, dtype=torch.float32, device=0)
@@ -289,28 +292,31 @@ class AimAide():
         return frame
 
     def _benchmark(self) -> None:
+        c = Event()
         t1 = time.perf_counter()
         while time.perf_counter() - t1 < 5:
             t = time.perf_counter() - t1
             print(f'Running in benchmark mode for 300 iterations in {(4-t):.1f} sec!', end='\r', flush=True)
             time.sleep(1)
         print('\n')
-        self.run(min_conf=.8, visualize=False, prefer_body=False, sensitivity=1, view_only=True, benchmark=True)
+        self.run(min_conf=.8, visualize=False, prefer_body=False, sensitivity=1, flickieness=1, view_only=True, benchmark=True, c=c)
 
 
     def run(self, min_conf: float, sensitivity: int, flickieness: int, 
-            visualize: bool, prefer_body: bool, view_only: bool, benchmark: bool) -> None:
+            visualize: bool, prefer_body: bool, view_only: bool, benchmark: bool,
+            c) -> None:
 
         self.listener_switch = Thread(target=self.user_switch_side, daemon=True)
         self.listener_switch.start()
         
         max_dist = np.hypot(self.section_size, self.section_size)
-        conf = 0
+        conf = float(0)
         count_fps, count = 0, 0
         dx, dy = 0, 0
         
         avg_fps = []
-        while True:
+        self.running = True
+        while not c.isSet():
             runtime_start = time.perf_counter()
             img = self._grab_func()
             bboxes, confs, labels = self._infer_func(img)
@@ -340,5 +346,11 @@ class AimAide():
                     print(f'Average FPS: {np.mean(np.array(avg_fps)):.2f} (dev:{np.std(np.array(avg_fps)):.2f})                       _')
                     print('Above 60 FPS increase sensitivity if aim aiding feels unnatural (-sensitivity argument: default 1).')
                     break
-        sys.exit()
-        ###
+
+        cv2.destroyAllWindows()
+        print('                                              ', end='\n')
+        print('#AimAide stopped#')
+
+    def exit(self, c):
+        self.running = False
+        c.set()
