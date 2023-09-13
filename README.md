@@ -13,7 +13,12 @@ External realtime object detection-based aim aiding powered by <b>YOLOv8</b>, <b
 
 
 <br>
-<b>25/07/23</b><br>
+<b>13/09/23</b><br>
+fixed initial TensorRT engine building when starting for the first time from webui launcher<br>
+changed ultralytics version to required 8.0.58, cause there are some issues with newer versions
+<br>
+<br>
+25/07/23<br>
 -added a webui launcher for comfortably changing settings<br>
 just run launcher.py from your command line
 <br>
