@@ -1,8 +1,8 @@
 import time
 import json
 import ctypes
-from rich import print
 from ctypes.wintypes import LARGE_INTEGER
+from typing import Tuple
 
 def accurate_timing(duration_ms: int) -> float:
     kernel32 = ctypes.windll.kernel32
@@ -21,7 +21,7 @@ def accurate_timing(duration_ms: int) -> float:
 
     return (time.perf_counter() - start_time) * 1000
 
-def parse_config(config_path: str) -> tuple[list, list, list, list]:
+def parse_config(config_path: str) -> Tuple[list, list, list, list]:
     with open(config_path, 'r') as f:
         data = json.load(f)
 

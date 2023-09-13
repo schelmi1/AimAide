@@ -5,7 +5,7 @@ import argparse
 from threading import Event
 
 import torch
-import tensorrt
+import tensorrt as trt
 from rich import print
 
 from src.enginebuilder import build_engine
@@ -21,7 +21,7 @@ class AimAideTrt(AimAide):
             print('[red]No CUDA device found.')
             sys.exit(0)
 
-        print(f'[green]TensorRT found:[/green] [cyan]{tensorrt.__version__}')
+        print(f'[green]TensorRT found:[/green] [cyan]{trt.__version__}')
 
         if model_path.endswith('pt'):
             print('[yellow]Specified YOLO.pt when a TensorRT engine is needed...Loading TensorRT engine!')

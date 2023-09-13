@@ -3,13 +3,50 @@ import ctypes
 from threading import Event
 
 import gradio as gr
+from rich import print
 
 from run_yolo import AimAideYolo
-from run_tensorrt import AimAideTrt
+
+try:
+    from run_tensorrt import AimAideTrt
+    trt_err_flag: bool = False
+except ImportError as e:
+    trt_err_flag: bool = True
+
+try:
+    from src.enginebuilder import build_engine
+except ImportError as e: ...
+
 
 model_path = 'models/'
 weights = [n for n in os.listdir(model_path) if n.lower().endswith('pt')]
-engines = [n for n in os.listdir(model_path) if n.lower().endswith('engine')]
+
+def build_engines_initial(weights: str) -> None:
+    for file in weights:
+        engine_filename = file.replace('pt', 'engine')
+        if engine_filename not in engines:
+            inputsz = int(engine_filename.split('-')[1])
+            print(f'[red]{engine_filename} is missing.[/red] [magenta]Building engine from YOLO weights. This may take a while...')
+            pkl_filename = engine_filename.replace('engine', 'pkl')
+            pt_filename =  engine_filename.replace('engine', 'pt')
+            input_shape = (1, 3, inputsz, inputsz)
+            build_engine(os.path.join(model_path, pt_filename), input_shape, os.path.join(model_path, pkl_filename))
+            print(f'[yellow]Removing {pkl_filename}')
+            os.remove(os.path.join(model_path, pkl_filename))
+    print(f'[green]Done!')
+
+if not trt_err_flag:
+    try:
+        engines = [n for n in os.listdir(model_path) if n.lower().endswith('engine')]
+        if len(engines) != len(weights):
+            print('[yellow]TensorRT found but engines are missing.\nBuilding engines from YOLO weights.')
+            build_engines_initial(weights)
+            engines = [n for n in os.listdir(model_path) if n.lower().endswith('engine')]
+    except Exception as e:
+        print('[red]Error checking/building engines!\nIf you encounter problems with TensorRT, use YOLOv8 inference.')
+else:
+    engines = ['TensorRT import error']
+    
 Aim = False
 
 def run_aimaide(*args):
@@ -81,8 +118,11 @@ with gr.Blocks() as app:
     }
 
     def filter_models(infer):
+        if len(engines) == 0 and infer == 'TensorRT' and not trt_err_flag:
+            build_engines_initial(weights)
+            
         return gr.Dropdown.update(
-            choices=infer_map[infer], value=infer_map[infer][1]
+            choices=infer_map[infer]
         ), gr.update(visible=True)
 
     def filter_value(model):

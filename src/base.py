@@ -2,7 +2,7 @@
 import os
 import sys
 import time
-from typing import Union
+from typing import Union, Tuple
 from threading import Thread, Event
 
 try:
@@ -37,7 +37,7 @@ SIDE_COLOR_MAP = {'ct' : 'turquoise2',
                  }
 
 class AimAide():
-    def __init__(self, screensz: tuple[int, int], sectionsz: int, grabber: str, infer_method: str,  
+    def __init__(self, screensz: Tuple[int, int], sectionsz: int, grabber: str, infer_method: str,  
                  model_path: str, model_config_path: str, side: str) -> None:
         model_size = os.path.basename(model_path).split('-')[1]
         inputsz = int(model_size) if model_size.isnumeric() else model_size
@@ -162,7 +162,7 @@ class AimAide():
 
             return cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
     
-    def _inference_yolo(self, img: np.ndarray)-> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    def _inference_yolo(self, img: np.ndarray)-> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         results = self.model.predict(img, device=0, verbose=False, max_det=10)
 
         bboxes, confs, labels = [], [], []
@@ -180,7 +180,7 @@ class AimAide():
 
         return (bboxes, confs, labels)
 
-    def _inference_trt(self, img: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    def _inference_trt(self, img: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         if self._grabber == 'd3d_cpu' or self._grabber == 'win32':
             bgr, ratio, dwdh = letterbox(img, (self.section_size, self.section_size))
             tensor = blob(cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB), return_seg=False)
@@ -215,7 +215,7 @@ class AimAide():
                                   bboxes: np.ndarray, 
                                   confs: np.ndarray, 
                                   labels: np.ndarray, 
-                                  prefer_body: bool) -> tuple[bool, float, int, int, int, int, int, int, int, int]:
+                                  prefer_body: bool) -> Tuple[bool, float, int, int, int, int, int, int, int, int]:
         target = []
         if labels.size > 1:
             valid_idcs = np.in1d(labels, self.side_target_label_map[self.side])
