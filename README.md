@@ -1,6 +1,8 @@
 # AimAide for CSGO and soon CS2
 
-*still waiting for CS2 access, no updates for CSGO!
+*UPDATE!
+<br>as long as raw input can not be disabled in CS2 the mouse mover does not work.<br>
+models seem to work tho
 
 External realtime object detection-based aim aiding powered by <b>YOLOv8</b>, <b>CUDA</b> and <b>TensorRT</b><br>
 [Twitter for further development updates](https://twitter.com/AimAideCS)
