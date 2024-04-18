@@ -1,4 +1,4 @@
-# AimAide for CSGO and soon CS2
+# AimAide for CSGO and ~~soon CS2~~
 
 *UPDATE!
 <br>as long as raw input can not be disabled in CS2 the mouse mover does not work.<br>
